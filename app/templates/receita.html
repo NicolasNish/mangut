@@ -26,7 +26,19 @@
         <!-- Detalhes Principais da Receita -->
         <!-- Detalhes Principais da Receita -->
         <article class="recipe-detail">
-            <div class="card-tag">{{ receita.categoria }}</div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="card-tag">{{ receita.categoria }}</div>
+
+                <!-- Ações: Editar e Excluir -->
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="/receita/{{ receita.id }}/editar" class="btn-primary" style="text-decoration: none; font-size: 0.85rem; padding: 0.4rem 0.8rem;">✏️ Editar</a>
+
+                    <form action="/receita/{{ receita.id }}/excluir" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita.');" style="display: inline;">
+                        <button type="submit" class="btn-primary" style="background-color: #d90429; font-size: 0.85rem; padding: 0.4rem 0.8rem;">🗑️ Excluir</button>
+                    </form>
+                </div>
+            </div>
+
             <h1 class="recipe-title">{{ receita.nome }}</h1>
 
             <!-- 📸 Imagem de capa da receita -->
