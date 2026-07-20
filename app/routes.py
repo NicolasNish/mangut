@@ -13,19 +13,19 @@ def index():
             "id": r.idreceitas,
             "nome": r.nome,
             "categoria": r.categoria_rel.nome,
-            "descricao": r.descricao
+            "descricao": r.descricao,
+            # Se não houver imagem cadastrada, usa uma imagem padrão
+            "imagem_url": r.imagem_url or "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500"
         })
     return render_template('index.html', receitas=receitas_formatadas)
 
 
-# 🟢 Rota GET: Exibe o formulário de cadastro de receita
 @main.route('/receita/nova', methods=['GET'])
 def formulario_nova_receita():
     categorias = Categoria.query.all()
     return render_template('nova_receita.html', categorias=categorias)
 
 
-# 🟢 Rota POST: Processa o formulário e salva a nova receita no banco
 @main.route('/receita/nova', methods=['POST'])
 def salvar_nova_receita():
     nome = request.form.get('nome')
@@ -33,6 +33,7 @@ def salvar_nova_receita():
     descricao = request.form.get('descricao')
     lista_ingredientes = request.form.get('lista_ingredientes')
     modo_preparo = request.form.get('modo_preparo')
+    imagem_url = request.form.get('imagem_url') # Captura a URL digitada no formulário
 
     if nome and categoria_id and lista_ingredientes and modo_preparo:
         nova_receita = Receita(
@@ -40,13 +41,13 @@ def salvar_nova_receita():
             descricao=descricao,
             lista_ingredientes=lista_ingredientes,
             modo_preparo=modo_preparo,
+            imagem_url=imagem_url, # Salva o link da imagem no SQLite
             categoria_idcategoria=int(categoria_id),
-            gastronomos_idgastronomos=1  # Usando o usuário padrão criado pelo seed
+            gastronomos_idgastronomos=1
         )
         db.session.add(nova_receita)
         db.session.commit()
 
-        # Redireciona diretamente para a página da receita recém-criada
         return redirect(url_for('main.detalhe_receita', id=nova_receita.idreceitas))
 
     return redirect(url_for('main.formulario_nova_receita'))
@@ -63,7 +64,8 @@ def detalhe_receita(id):
         "nome": receita.nome,
         "categoria": receita.categoria_rel.nome,
         "descricao": receita.descricao,
-        "modo_preparo": receita.modo_preparo
+        "modo_preparo": receita.modo_preparo,
+        "imagem_url": receita.imagem_url or "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500"
     }
 
     return render_template('receita.html', receita=dados_receita, ingredientes=ingredientes, avaliacoes=avaliacoes)

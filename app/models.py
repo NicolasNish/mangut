@@ -7,7 +7,7 @@ class Gastronomo(db.Model):
     nome = db.Column(db.String(45), nullable=False)
     email = db.Column(db.String(55), unique=True, nullable=False)
     telefone = db.Column(db.String(12))
-    senha = db.Column(db.String(255), nullable=False)  # Aumentado para suportar hashes de senha
+    senha = db.Column(db.String(255), nullable=False)
 
     # Relacionamentos
     receitas = db.relationship('Receita', backref='autor', lazy=True)
@@ -27,8 +27,9 @@ class Receita(db.Model):
     idreceitas = db.Column(db.Integer, primary_key=True)
     nome = db.Column(db.String(90), nullable=False)
     descricao = db.Column(db.String(255))
-    lista_ingredientes = db.Column(db.Text, nullable=False)  # Usando Text para não limitar
+    lista_ingredientes = db.Column(db.Text, nullable=False)
     modo_preparo = db.Column(db.Text, nullable=False)
+    imagem_url = db.Column(db.String(500), nullable=True)  # Campo para a foto da receita
 
     # Chaves Estrangeiras
     gastronomos_idgastronomos = db.Column(db.Integer, db.ForeignKey('gastronomos.idgastronomos'), nullable=False)

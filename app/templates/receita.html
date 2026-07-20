@@ -24,9 +24,18 @@
 
     <main class="container">
         <!-- Detalhes Principais da Receita -->
+        <!-- Detalhes Principais da Receita -->
         <article class="recipe-detail">
             <div class="card-tag">{{ receita.categoria }}</div>
             <h1 class="recipe-title">{{ receita.nome }}</h1>
+
+            <!-- 📸 Imagem de capa da receita -->
+            {% if receita.imagem_url %}
+            <div class="recipe-hero-image">
+                <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}">
+            </div>
+            {% endif %}
+
             <p class="recipe-description">{{ receita.descricao }}</p>
 
             <div class="recipe-section">

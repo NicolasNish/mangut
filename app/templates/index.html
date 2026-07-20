@@ -41,10 +41,13 @@
         <div class="recipe-grid">
             {% for receita in receitas %}
             <div class="recipe-card">
-                <div class="card-tag">{{ receita.categoria }}</div>
+                <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
+                <div class="card-content">
+                    <div class="card-tag">{{ receita.categoria }}</div>
                     <h3>{{ receita.nome }}</h3>
                     <p>{{ receita.descricao }}</p>
                     <a href="/receita/{{ receita.id }}" class="card-link">Ver receita →</a>
+                </div>
             </div>
             {% endfor %}
         </div>

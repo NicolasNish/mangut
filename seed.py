@@ -36,6 +36,7 @@ def popular_banco():
             descricao="Caldo fervente de tucupi com goma de mandioca, folhas de jambu e camarão seco.",
             lista_ingredientes="Tucupi, goma de mandioca, jambu, camarão seco, alho, pimenta-de-cheiro",
             modo_preparo="Cozinhe o tucupi temperado com alho e pimenta. Caldeie as folhas de jambu. Em uma cuia, monte a goma, o tucupi, o jambu e finalize com os camarões.",
+            imagem_url="https://images.unsplash.com/photo-1547592180-85f173990554?auto=format&fit=crop&w=600&q=80",
             gastronomos_idgastronomos=chef.idgastronomos,
             categoria_idcategoria=cat_caldos.idcategoria
         )
