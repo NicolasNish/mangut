@@ -1,0 +1,354 @@
+/* Variáveis de Cores Amazônicas - Modo Claro (Padrão) */
+:root {
+    --bg-main: #f9f9f9;
+    --bg-card: #ffffff;
+    --bg-hero: #f0fdf4;
+    --text-primary: #222222;
+    --text-secondary: #555555;
+    --text-accent: #1b4332; /* Verde copa das árvores */
+    --border-color: #eaeaea;
+    --tag-bg: #e8f5e9;
+    --tag-text: #2d6a4f;
+    --btn-cta: #d90429;     /* Vermelho destacado */
+    --btn-cta-hover: #ef233c;
+    --card-shadow: rgba(0, 0, 0, 0.05);
+}
+
+/* Variáveis de Cores Amazônicas - Modo Escuro (Floresta Noturna) */
+[data-theme="dark"] {
+    --bg-main: #0c1813;      /* Verde noturno bem escuro */
+    --bg-card: #14241d;     /* Verde-musgo fechado para os cards */
+    --bg-hero: #101f19;     /* Fundo suave da seção principal */
+    --text-primary: #e2ece9;  /* Texto claro contrastante */
+    --text-secondary: #a3b8b0;/* Texto secundário em tom de folhagem suave */
+    --text-accent: #74c69d;   /* Verde folha brilhante para destaques e títulos */
+    --border-color: #1f372c;  /* Bordas em tom de mato */
+    --tag-bg: #1f3f32;
+    --tag-text: #95d5b2;
+    --btn-cta: #e63946;     /* Vermelho aquecido para botões */
+    --btn-cta-hover: #ff4d5a;
+    --card-shadow: rgba(0, 0, 0, 0.4);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+}
+
+/* Navbar */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.2rem 4rem;
+    background-color: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.logo {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-accent);
+}
+
+.nav-links a {
+    margin: 0 1.5rem;
+    text-decoration: none;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.nav-links a:hover {
+    color: var(--text-accent);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.btn-primary {
+    background-color: var(--tag-text);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* Botão de Alternar Tema (Escuro/Claro) */
+.theme-toggle {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    padding: 0.5rem 0.8rem;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.theme-toggle:hover {
+    background-color: var(--tag-bg);
+}
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 4rem 2rem;
+    background-color: var(--bg-hero);
+}
+
+.hero h1 {
+    font-size: 2.8rem;
+    color: var(--text-accent);
+    margin-bottom: 1rem;
+}
+
+.hero p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    max-width: 600px;
+    margin: 0 auto 2rem auto;
+}
+
+.btn-cta {
+    background-color: var(--btn-cta);
+    color: white;
+    border: none;
+    padding: 0.8rem 1.8rem;
+    font-size: 1rem;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.btn-cta:hover {
+    background-color: var(--btn-cta-hover);
+}
+
+/* Main Container & Cards */
+.container {
+    max-width: 1100px;
+    margin: 3rem auto;
+    padding: 0 1rem;
+}
+
+.container h2 {
+    margin-bottom: 1.5rem;
+    color: var(--text-accent);
+}
+
+.recipe-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 2rem;
+}
+
+.recipe-card {
+    background: var(--bg-card);
+    padding: 1.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px var(--card-shadow);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.card-tag {
+    align-self: flex-start;
+    background: var(--tag-bg);
+    color: var(--tag-text);
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.2rem 0.6rem;
+    border-radius: 4px;
+    margin-bottom: 0.8rem;
+}
+
+.recipe-card h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.recipe-card p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+}
+
+.card-link {
+    color: var(--text-accent);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+footer {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    border-top: 1px solid var(--border-color);
+    margin-top: 4rem;
+}
+
+/* Estilos da Página Detalhada da Receita */
+.recipe-detail {
+    background: var(--bg-card);
+    padding: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px var(--card-shadow);
+    margin-bottom: 2rem;
+}
+
+.recipe-title {
+    font-size: 2.2rem;
+    color: var(--text-accent);
+    margin: 0.8rem 0;
+}
+
+.recipe-description {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+}
+
+.recipe-section {
+    margin-top: 1.8rem;
+}
+
+.recipe-section h2 {
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    margin-bottom: 0.8rem;
+}
+
+.ingredients-list {
+    list-style-type: square;
+    padding-left: 1.5rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+
+.prep-text {
+    color: var(--text-secondary);
+    line-height: 1.7;
+    font-size: 1.05rem;
+}
+
+.divider {
+    border: none;
+    border-top: 1px solid var(--border-color);
+    margin: 3rem 0;
+}
+
+/* Seção de Avaliações */
+.reviews-section {
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+}
+
+.review-form {
+    margin: 1.5rem 0 2.5rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.rating-input select, .comment-input textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    font-size: 1rem;
+}
+
+.review-card {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-top: 1rem;
+}
+
+.review-stars {
+    font-size: 0.9rem;
+    margin-bottom: 0.4rem;
+}
+
+.review-comment {
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+.no-reviews {
+    color: var(--text-secondary);
+    margin-top: 1rem;
+}
+
+/* Formulário de Cadastro de Receita */
+.form-section {
+    background: var(--bg-card);
+    padding: 2.5rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px var(--card-shadow);
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.form-subtext {
+    color: var(--text-secondary);
+    margin: 0.5rem 0 2rem 0;
+}
+
+.recipe-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+}
+
+.form-group label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+    padding: 0.8rem;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--bg-main);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.btn-submit {
+    margin-top: 1rem;
+    padding: 0.9rem;
+    font-size: 1rem;
+}

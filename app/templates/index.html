@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mangut - Gastronomia Nortista</title>
+    <!-- CSS Personalizado -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Fonte Inter do Google Fonts para visual moderno -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <div class="logo">mangut</div>
+        <nav class="nav-links">
+            <a href="#">Receitas</a>
+            <a href="#">Recomendações</a>
+            <a href="#">Sobre</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="/receita/nova" class="btn-primary" style="text-decoration: none;">+ Nova Receita</a>
+        <button id="theme-toggle" class="theme-toggle" title="Alternar Modo Escuro">🌙</button>
+        <button class="btn-primary">Entrar</button>
+        </div>
+    </header>
+
+    <!-- Banner Principal (Hero Section estilo Tastemade) -->
+    <section class="hero">
+        <h1>Decisões para o almoço, resolvidas.</h1>
+        <p>Um assistente gastronômico inteligente para explorar, planejar e cozinhar o melhor da culinária nortista.</p>
+        <button class="btn-cta">Descobrir Receitas</button>
+    </section>
+
+    <!-- Grid de Destaques de Receitas -->
+    <main class="container">
+        <h2>Receitas Tradicionais em Destaque</h2>
+        <div class="recipe-grid">
+            {% for receita in receitas %}
+            <div class="recipe-card">
+                <div class="card-tag">{{ receita.categoria }}</div>
+                    <h3>{{ receita.nome }}</h3>
+                    <p>{{ receita.descricao }}</p>
+                    <a href="/receita/{{ receita.id }}" class="card-link">Ver receita →</a>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2026 Mangut. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+</body>
+</html>

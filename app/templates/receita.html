@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ receita.nome }} - Mangut</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <a href="/" class="logo">mangut</a>
+        <nav class="nav-links">
+            <a href="/">← Voltar às Receitas</a>
+        </nav>
+        <div class="nav-actions">
+            <button id="theme-toggle" class="theme-toggle" title="Alternar Modo Escuro">🌙</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Detalhes Principais da Receita -->
+        <article class="recipe-detail">
+            <div class="card-tag">{{ receita.categoria }}</div>
+            <h1 class="recipe-title">{{ receita.nome }}</h1>
+            <p class="recipe-description">{{ receita.descricao }}</p>
+
+            <div class="recipe-section">
+                <h2>🛒 Ingredientes</h2>
+                <ul class="ingredients-list">
+                    {% for ingrediente in ingredientes %}
+                    <li>{{ ingrediente.strip() }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+
+            <div class="recipe-section">
+                <h2>🍳 Modo de Preparo</h2>
+                <p class="prep-text">{{ receita.modo_preparo }}</p>
+            </div>
+        </article>
+
+        <hr class="divider">
+
+        <!-- Seção de Avaliações -->
+        <section class="reviews-section">
+            <h2>⭐ Avaliações dos Gastrônomos</h2>
+
+            <!-- Formulário para Enviar Avaliação -->
+            <form action="/receita/{{ receita.id }}/avaliar" method="POST" class="review-form">
+                <h3>Deixe sua avaliação</h3>
+
+                <div class="rating-input">
+                    <label for="avaliacoes">Sua nota:</label>
+                    <select name="avaliacoes" id="avaliacoes" required>
+                        <option value="5">⭐⭐⭐⭐⭐ (5 - Excelente)</option>
+                        <option value="4">⭐⭐⭐⭐ (4 - Muito bom)</option>
+                        <option value="3">⭐⭐⭐ (3 - Bom)</option>
+                        <option value="2">⭐⭐ (2 - Regular)</option>
+                        <option value="1">⭐ (1 - Ruim)</option>
+                    </select>
+                </div>
+
+                <div class="comment-input">
+                    <textarea name="comentario" placeholder="Escreva o que achou desta receita..." rows="3" required></textarea>
+                </div>
+
+                <button type="submit" class="btn-primary">Enviar Avaliação</button>
+            </form>
+
+            <!-- Lista de Comentários Cadastrados -->
+            <div class="reviews-list">
+                <h3>Comentários da Comunidade ({{ avaliacoes|length }})</h3>
+                {% if avaliacoes %}
+                    {% for av in avaliacoes %}
+                    <div class="review-card">
+                        <div class="review-stars">
+                            {% for i in range(av.avaliacoes) %}⭐{% endfor %}
+                        </div>
+                        <p class="review-comment">"{{ av.comentario }}"</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p class="no-reviews">Esta receita ainda não possui avaliações. Seja o primeiro a avaliar!</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mangut. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>
