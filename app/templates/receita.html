@@ -8,35 +8,43 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/png">
 </head>
 <body>
 
     <!-- Header / Navbar -->
     <header class="navbar">
-        <a href="/" class="logo">mangut</a>
-        <nav class="nav-links">
-            <a href="/">← Voltar às Receitas</a>
-        </nav>
-        <div class="nav-actions">
-            <button id="theme-toggle" class="theme-toggle" title="Alternar Modo Escuro">🌙</button>
-        </div>
-    </header>
+    <a href="/" class="logo-link">
+        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
+    </a>
+    <nav class="nav-links">
+        <a href="#">Receitas</a>
+        <a href="#">Recomendações</a>
+        <a href="#">Sobre</a>
+    </nav>
+    <div class="nav-actions">
+    {% if current_user.is_authenticated %}
+        <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
+    {% endif %}
+    </div>
+</header>
 
     <main class="container">
-        <!-- Detalhes Principais da Receita -->
-        <!-- Detalhes Principais da Receita -->
+       <!-- Detalhes Principais da Receita -->
         <article class="recipe-detail">
             <div style="display: flex; justify-content: space-between; align-items: center;">
-                <div class="card-tag">{{ receita.categoria }}</div>
+                <div class="card-tag">{{ receita.categoria }} (por {{ receita.autor_nome }})</div>
 
-                <!-- Ações: Editar e Excluir -->
+                <!-- 🛡️ TRAVA VISUAL: Apenas exibe se for o Autor ou Admin -->
+                {% if current_user.is_authenticated and (current_user.idgastronomos == receita.autor_id or current_user.is_admin) %}
                 <div style="display: flex; gap: 0.5rem;">
                     <a href="/receita/{{ receita.id }}/editar" class="btn-primary" style="text-decoration: none; font-size: 0.85rem; padding: 0.4rem 0.8rem;">✏️ Editar</a>
 
-                    <form action="/receita/{{ receita.id }}/excluir" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta receita? Esta ação não pode ser desfeita.');" style="display: inline;">
+                    <form action="/receita/{{ receita.id }}/excluir" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta receita?');" style="display: inline;">
                         <button type="submit" class="btn-primary" style="background-color: #d90429; font-size: 0.85rem; padding: 0.4rem 0.8rem;">🗑️ Excluir</button>
                     </form>
                 </div>
+                {% endif %}
             </div>
 
             <h1 class="recipe-title">{{ receita.nome }}</h1>
@@ -71,36 +79,51 @@
         <section class="reviews-section">
             <h2>⭐ Avaliações dos Gastrônomos</h2>
 
-            <!-- Formulário para Enviar Avaliação -->
-            <form action="/receita/{{ receita.id }}/avaliar" method="POST" class="review-form">
-                <h3>Deixe sua avaliação</h3>
+            {% if current_user.is_authenticated %}
+                <!-- Formulário Exibido Apenas para Usuários Logados -->
+                <form action="/receita/{{ receita.id }}/avaliar" method="POST" class="review-form">
+                    <h3>Deixe sua avaliação, {{ current_user.nome }}</h3>
 
-                <div class="rating-input">
-                    <label for="avaliacoes">Sua nota:</label>
-                    <select name="avaliacoes" id="avaliacoes" required>
-                        <option value="5">⭐⭐⭐⭐⭐ (5 - Excelente)</option>
-                        <option value="4">⭐⭐⭐⭐ (4 - Muito bom)</option>
-                        <option value="3">⭐⭐⭐ (3 - Bom)</option>
-                        <option value="2">⭐⭐ (2 - Regular)</option>
-                        <option value="1">⭐ (1 - Ruim)</option>
-                    </select>
+                    <div class="rating-input">
+                        <label for="avaliacoes">Sua nota:</label>
+                        <select name="avaliacoes" id="avaliacoes" required>
+                            <option value="5">⭐⭐⭐⭐⭐ (5 - Excelente)</option>
+                            <option value="4">⭐⭐⭐⭐ (4 - Muito bom)</option>
+                            <option value="3">⭐⭐⭐ (3 - Bom)</option>
+                            <option value="2">⭐⭐ (2 - Regular)</option>
+                            <option value="1">⭐ (1 - Ruim)</option>
+                        </select>
+                    </div>
+
+                    <div class="comment-input">
+                        <textarea name="comentario" placeholder="Escreva o que achou desta receita..." rows="3" required></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary">Enviar Avaliação</button>
+                </form>
+            {% else %}
+                <!-- Aviso para Visitantes Não Logados -->
+                <!-- Aviso para Visitantes Não Logados -->
+                <div class="login-prompt" style="padding: 1.2rem; background: var(--bg-main); border-radius: 8px; margin: 1.5rem 0;">
+                    <p style="color: var(--text-secondary); font-size: 0.95rem;">
+                        🔒 Quer avaliar esta receita?
+                        <a href="/login?next={{ request.path }}" style="color: var(--text-accent); font-weight: 600;">Faça login</a> ou
+                        <a href="/cadastro?next={{ request.path }}" style="color: var(--text-accent); font-weight: 600;">Cadastre-se</a> para deixar sua nota e opinião.
+                    </p>
                 </div>
+            {% endif %}
 
-                <div class="comment-input">
-                    <textarea name="comentario" placeholder="Escreva o que achou desta receita..." rows="3" required></textarea>
-                </div>
-
-                <button type="submit" class="btn-primary">Enviar Avaliação</button>
-            </form>
-
-            <!-- Lista de Comentários Cadastrados -->
+            <!-- Lista de Comentários da Comunidade -->
             <div class="reviews-list">
                 <h3>Comentários da Comunidade ({{ avaliacoes|length }})</h3>
                 {% if avaliacoes %}
                     {% for av in avaliacoes %}
                     <div class="review-card">
-                        <div class="review-stars">
-                            {% for i in range(av.avaliacoes) %}⭐{% endfor %}
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                            <strong style="color: var(--text-accent); font-size: 0.95rem;">👤 {{ av.autor_nome }}</strong>
+                            <div class="review-stars">
+                                {% for i in range(av.avaliacoes) %}⭐{% endfor %}
+                            </div>
                         </div>
                         <p class="review-comment">"{{ av.comentario }}"</p>
                     </div>
@@ -117,5 +140,8 @@
     </footer>
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+    <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
+
 </body>
 </html>

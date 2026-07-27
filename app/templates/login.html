@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar - Mangut</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/png">
+</head>
+<body>
+    <header class="navbar">
+        <a href="/" class="logo-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
+        </a>
+    </header>
+
+    <main class="container">
+        <section class="form-section">
+            <h1>🔑 Entrar no Mangut</h1>
+            <p class="form-subtext">Acesse sua conta para gerenciar suas receitas e avaliações.</p>
+
+            <form action="/login" method="POST" class="recipe-form">
+                <!-- Preserva a página de retorno -->
+                {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="email">E-mail:</label>
+                    <input type="email" id="email" name="email" placeholder="seuemail@exemplo.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="senha">Senha:</label>
+                    <input type="password" id="senha" name="senha" placeholder="Sua senha" required>
+                </div>
+
+                <button type="submit" class="btn-primary btn-submit">Entrar</button>
+            </form>
+            <p style="margin-top: 1.5rem; color: var(--text-secondary);">Ainda não tem conta? <a href="/cadastro" style="color: var(--text-accent); font-weight: 600;">Cadastre-se</a>.</p>
+        </section>
+    </main>
+</body>
+</html>
