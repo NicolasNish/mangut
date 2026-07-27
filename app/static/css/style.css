@@ -449,3 +449,242 @@ footer {
     transform: scale(1.1);
     border-color: var(--text-accent);
 }
+
+/* Estilos da Tela de Perfil do Usuário */
+.profile-header-card {
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 12px var(--card-shadow);
+    display: flex;
+    align-items: center;
+    gap: 1.8rem;
+    margin-bottom: 2.5rem;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background-color: var(--tag-bg);
+    color: var(--tag-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    font-weight: 700;
+    border: 2px solid var(--text-accent);
+}
+
+.profile-details h1 {
+    font-size: 1.8rem;
+    color: var(--text-primary);
+}
+
+.profile-email, .profile-phone {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-top: 0.3rem;
+}
+
+.profile-section {
+    margin-bottom: 2rem;
+}
+
+.profile-section h2 {
+    font-size: 1.3rem;
+    color: var(--text-accent);
+    margin-bottom: 1.2rem;
+}
+
+.no-data-text {
+    color: var(--text-secondary);
+    font-style: italic;
+    background: var(--bg-card);
+    padding: 1.2rem;
+    border-radius: 8px;
+    border: 1px dashed var(--border-color);
+}
+
+/* Modal de Exigência de Login ao Tentar Comentar */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.65);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    backdrop-filter: blur(3px);
+}
+
+.modal-box {
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: 12px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 8px 24px var(--card-shadow);
+    max-width: 420px;
+    width: 90%;
+    text-align: center;
+}
+
+.modal-box h3 {
+    color: var(--text-accent);
+    margin-bottom: 0.8rem;
+    font-size: 1.3rem;
+}
+
+.modal-box p {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+}
+
+.modal-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.btn-secondary-modal {
+    background-color: transparent;
+    color: var(--text-accent);
+    border: 1px solid var(--text-accent);
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+    display: block;
+}
+
+.btn-close-modal {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.85rem;
+    margin-top: 0.4rem;
+}
+
+.btn-close-modal:hover {
+    text-decoration: underline;
+}
+
+/* Container de Avaliação por Estrelas Interativas */
+.star-rating-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 0.8rem;
+}
+
+.star-rating-container label {
+    font-weight: 600;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+}
+
+.star-rating {
+    display: inline-flex;
+    flex-direction: row-reverse; /* Inverte a ordem para facilitar o hover com CSS */
+    gap: 0.2rem;
+    cursor: pointer;
+}
+
+.star-rating input[type="radio"] {
+    display: none; /* Esconde os Radio Buttons padrão */
+}
+
+.star-rating label {
+    font-size: 1.8rem;
+    color: #ccc; /* Cor cinza para estrela apagada */
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.15s ease;
+}
+
+/* Efeito Hover e Estado Selecionado (Dourado) */
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input[type="radio"]:checked ~ label {
+    color: #ffb703; /* Amarelo ouro para estrela acesa */
+}
+
+.star-rating label:hover {
+    transform: scale(1.2);
+}
+
+/* Badges e Selos de Média de Avaliação */
+.rating-badge {
+    background-color: var(--bg-main);
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+    font-size: 0.85rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+.recipe-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+}
+
+.recipe-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn-sm {
+    font-size: 0.85rem !important;
+    padding: 0.4rem 0.8rem !important;
+    text-decoration: none;
+}
+
+.btn-danger {
+    background-color: #d90429 !important;
+}
+
+/* Linha do Título com Média das Estrelas */
+.recipe-title-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.recipe-title-row .recipe-title {
+    margin: 0; /* Remove margens extras que desalinhavem a linha */
+}
+
+/* Selo de Avaliação no Canto Direito */
+.rating-badge-detail {
+    background: var(--bg-main);
+    border: 1px solid var(--border-color);
+    padding: 0.4rem 0.85rem;
+    border-radius: 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.star-score {
+    color: #ffb703;
+    font-weight: 700;
+    font-size: 1rem;
+}
+
+.star-count {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}

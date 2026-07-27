@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meu Perfil - Mangut</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+    <!-- Header / Navbar -->
+    <header class="navbar">
+        <a href="/" class="logo-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
+        </a>
+        <nav class="nav-links">
+            <a href="/">← Voltar às Receitas</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Cartão de Informações do Usuário -->
+        <section class="profile-header-card">
+            <div class="profile-avatar">
+                <span>{{ usuario.nome[0] | upper }}</span>
+            </div>
+            <div class="profile-details">
+                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                    <h1>{{ usuario.nome }}</h1>
+                    {% if usuario.is_admin %}
+                        <span class="card-tag" style="background: #e63946; color: white;">Administrador</span>
+                    {% else %}
+                        <span class="card-tag">Gastrônomo</span>
+                    {% endif %}
+                </div>
+                <p class="profile-email">✉️ {{ usuario.email }}</p>
+                {% if usuario.telefone %}
+                    <p class="profile-phone">📞 {{ usuario.telefone }}</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Seção: Minhas Receitas Publicadas -->
+        <section class="profile-section">
+            <h2>📖 Minhas Receitas ({{ receitas|length }})</h2>
+            {% if receitas %}
+                <div class="recipe-grid">
+                    {% for receita in receitas %}
+                    <div class="recipe-card">
+                        <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
+                        <div class="card-content">
+                            <div class="card-tag">{{ receita.categoria }}</div>
+                            <h3>{{ receita.nome }}</h3>
+                            <p>{{ receita.descricao }}</p>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                                <a href="/receita/{{ receita.id }}" class="card-link">Ver receita →</a>
+                                <a href="/receita/{{ receita.id }}/editar" style="color: var(--text-secondary); font-size: 0.85rem; text-decoration: none;">✏️ Editar</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-data-text">Você ainda não publicou nenhuma receita. <a href="/receita/nova" style="color: var(--text-accent); font-weight: 600;">Clique aqui para publicar a primeira!</a></p>
+            {% endif %}
+        </section>
+
+        <hr class="divider">
+
+        <!-- Seção: Minhas Avaliações Enviadas -->
+        <section class="profile-section">
+            <h2>⭐ Minhas Avaliações ({{ avaliacoes|length }})</h2>
+            {% if avaliacoes %}
+                <div class="reviews-list">
+                    {% for av in avaliacoes %}
+                    <div class="review-card">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                            <a href="/receita/{{ av.receita_id }}" style="text-decoration: none; font-weight: 700; color: var(--text-accent);">
+                                🍲 {{ av.receita_nome }}
+                            </a>
+                            <div class="review-stars">
+                                {% for i in range(av.nota) %}⭐{% endfor %}
+                            </div>
+                        </div>
+                        <p class="review-comment">"{{ av.comentario }}"</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="no-data-text">Você ainda não avaliou nenhuma receita do site.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mangut. Culinária e cultura do Norte.</p>
+    </footer>
+
+    <!-- Botão Flutuante de Alternar Tema -->
+    <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

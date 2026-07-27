@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mangut - Gastronomia Nortista</title>
-    <!-- Favicon -->
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/png">
 </head>
 <body>
 
@@ -27,11 +26,11 @@
 
         <div class="nav-actions">
             {% if current_user.is_authenticated %}
-                <span style="font-weight: 600; color: var(--text-accent); font-size: 0.9rem;">
-                    Olá, {{ current_user.nome }} {% if current_user.is_admin %}(ADM){% endif %}
-                </span>
+                <!-- Link direto para o perfil -->
+                <a href="/perfil" style="font-weight: 600; color: var(--text-accent); font-size: 0.9rem; text-decoration: none;" title="Ver meu perfil">
+                    👤 {{ current_user.nome }} {% if current_user.is_admin %}(ADM){% endif %}
+                </a>
                 <a href="/receita/nova" class="btn-primary" style="text-decoration: none;">+ Nova Receita</a>
-                <!-- Botão com Borda Vermelha e Porta 🚪 -->
                 <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
             {% else %}
                 <a href="/login" class="btn-primary" style="text-decoration: none;">Entrar</a>
@@ -55,9 +54,25 @@
             <div class="recipe-card">
                 <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
                 <div class="card-content">
-                    <div class="card-tag">{{ receita.categoria }}</div>
-                    <h3>{{ receita.nome }}</h3>
-                    <p>{{ receita.descricao }}</p>
+                    <div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
+                            <div class="card-tag" style="margin-bottom: 0;">{{ receita.categoria }}</div>
+
+                            <!-- ⭐ Badge da Média de Estrelas -->
+                            <div class="rating-badge" title="Média de {{ receita.media_estrelas }} baseada em {{ receita.qtd_avaliacoes }} avaliações">
+                                {% if receita.qtd_avaliacoes > 0 %}
+                                    <span style="color: #ffb703; font-weight: 700;">★ {{ receita.media_estrelas }}</span>
+                                    <span style="color: var(--text-secondary); font-size: 0.8rem;">({{ receita.qtd_avaliacoes }})</span>
+                                {% else %}
+                                    <span style="color: var(--text-secondary); font-size: 0.8rem;">Sem notas</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <h3>{{ receita.nome }}</h3>
+                        <p>{{ receita.descricao }}</p>
+                    </div>
+
                     <a href="/receita/{{ receita.id }}" class="card-link">Ver receita →</a>
                 </div>
             </div>

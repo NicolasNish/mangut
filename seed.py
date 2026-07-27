@@ -26,7 +26,7 @@ def popular_banco():
             nome="Administrador Mangut",
             email="admin@mangut.com.br",
             telefone="91988888888",
-            senha=generate_password_hash("admin123"),
+            senha=generate_password_hash("amdin123"),
             is_admin=True
         )
 

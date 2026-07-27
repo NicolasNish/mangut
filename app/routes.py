@@ -6,19 +6,32 @@ from app.models import Receita, AvaliacaoReceita, Categoria, Gastronomo
 
 main = Blueprint('main', __name__)
 
-# Rota Inicial
+
+# 🟢 Página Inicial (Home) - Exibe média nos cards
 @main.route('/')
 def index():
     receitas_db = Receita.query.all()
     receitas_formatadas = []
+
     for r in receitas_db:
+        # Cálculo da Média de Estrelas
+        avaliacoes = AvaliacaoReceita.query.filter_by(receitas_idreceitas=r.idreceitas).all()
+        qtd_avaliacoes = len(avaliacoes)
+        if qtd_avaliacoes > 0:
+            media_estrelas = round(sum(a.avaliacoes for a in avaliacoes) / qtd_avaliacoes, 1)
+        else:
+            media_estrelas = 0.0
+
         receitas_formatadas.append({
             "id": r.idreceitas,
             "nome": r.nome,
             "categoria": r.categoria_rel.nome,
             "descricao": r.descricao,
-            "imagem_url": r.imagem_url or "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500"
+            "imagem_url": r.imagem_url or "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
+            "media_estrelas": media_estrelas,
+            "qtd_avaliacoes": qtd_avaliacoes
         })
+
     return render_template('index.html', receitas=receitas_formatadas)
 
 
@@ -83,6 +96,46 @@ def logout():
     logout_user()
     return redirect(url_for('main.index'))
 
+
+# 👤 Perfil do Usuário - Exibe média das receitas publicadas
+@main.route('/perfil')
+@login_required
+def perfil():
+    receitas_usuario = Receita.query.filter_by(gastronomos_idgastronomos=current_user.idgastronomos).all()
+    receitas_formatadas = []
+
+    for r in receitas_usuario:
+        avaliacoes = AvaliacaoReceita.query.filter_by(receitas_idreceitas=r.idreceitas).all()
+        qtd_avaliacoes = len(avaliacoes)
+        media_estrelas = round(sum(a.avaliacoes for a in avaliacoes) / qtd_avaliacoes, 1) if qtd_avaliacoes > 0 else 0.0
+
+        receitas_formatadas.append({
+            "id": r.idreceitas,
+            "nome": r.nome,
+            "categoria": r.categoria_rel.nome,
+            "descricao": r.descricao,
+            "imagem_url": r.imagem_url or "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
+            "media_estrelas": media_estrelas,
+            "qtd_avaliacoes": qtd_avaliacoes
+        })
+
+    avaliacoes_usuario = AvaliacaoReceita.query.filter_by(gastronomos_idgastronomos=current_user.idgastronomos).all()
+    avaliacoes_formatadas = []
+    for av in avaliacoes_usuario:
+        avaliacoes_formatadas.append({
+            "receita_id": av.receita.idreceitas,
+            "receita_nome": av.receita.nome,
+            "nota": av.avaliacoes,
+            "comentario": av.comentario
+        })
+
+    return render_template(
+        'perfil.html',
+        usuario=current_user,
+        receitas=receitas_formatadas,
+        avaliacoes=avaliacoes_formatadas
+    )
+
 # ➕ Cadastrar Nova Receita (Apenas usuários logados)
 @main.route('/receita/nova', methods=['GET', 'POST'])
 @login_required
@@ -119,17 +172,25 @@ def detalhe_receita(id):
     receita = Receita.query.get_or_404(id)
     ingredientes = receita.lista_ingredientes.split(',') if receita.lista_ingredientes else []
 
-    # Buscar avaliações cadastradas da receita
     avaliacoes_db = AvaliacaoReceita.query.filter_by(receitas_idreceitas=id).all()
+    qtd_avaliacoes = len(avaliacoes_db)
 
-    # Formata as avaliações trazendo o nome do usuário que comentou
+    if qtd_avaliacoes > 0:
+        media_estrelas = round(sum(a.avaliacoes for a in avaliacoes_db) / qtd_avaliacoes, 1)
+    else:
+        media_estrelas = 0.0
+
     avaliacoes_formatadas = []
     for av in avaliacoes_db:
         nome_autor = av.usuario.nome if av.usuario else "Gastrônomo Anônimo"
+        autor_id = av.gastronomos_idgastronomos if av.usuario else None
+
         avaliacoes_formatadas.append({
+            "id": av.id,
             "avaliacoes": av.avaliacoes,
             "comentario": av.comentario,
-            "autor_nome": nome_autor
+            "autor_nome": nome_autor,
+            "autor_id": autor_id
         })
 
     dados_receita = {
@@ -140,7 +201,9 @@ def detalhe_receita(id):
         "modo_preparo": receita.modo_preparo,
         "imagem_url": receita.imagem_url or "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
         "autor_id": receita.gastronomos_idgastronomos,
-        "autor_nome": receita.autor.nome
+        "autor_nome": receita.autor.nome,
+        "media_estrelas": media_estrelas,
+        "qtd_avaliacoes": qtd_avaliacoes
     }
 
     return render_template(
@@ -149,6 +212,23 @@ def detalhe_receita(id):
         ingredientes=ingredientes,
         avaliacoes=avaliacoes_formatadas
     )
+
+
+# 🗑️ Rota POST: Excluir uma Avaliação (Apenas o Autor do comentário ou ADM)
+@main.route('/avaliacao/<int:id>/excluir', methods=['POST'])
+@login_required
+def excluir_avaliacao(id):
+    avaliacao = AvaliacaoReceita.query.get_or_404(id)
+    receita_id = avaliacao.receitas_idreceitas
+
+    # Trava de Segurança: Somente o autor do comentário ou Admin pode apagar
+    if avaliacao.gastronomos_idgastronomos != current_user.idgastronomos and not current_user.is_admin:
+        return redirect(url_for('main.detalhe_receita', id=receita_id))
+
+    db.session.delete(avaliacao)
+    db.session.commit()
+
+    return redirect(url_for('main.detalhe_receita', id=receita_id))
 
 # ✏️ Editar Receita (Apenas Autor ou ADM)
 @main.route('/receita/<int:id>/editar', methods=['GET', 'POST'])
