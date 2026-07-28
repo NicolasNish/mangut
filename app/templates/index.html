@@ -42,13 +42,34 @@
     <!-- Banner Principal (Hero com proposta Minimalista e Amazônica) -->
     <section class="hero">
         <h1>Sabores e tradições da Amazônia.</h1>
-        <p>Explore preparos autênticos da culinária nortista, do tucupi ao açaí, com indicações sob medida para o seu paladar.</p>
-        <a href="#receitas" class="btn-cta" style="text-decoration: none; display: inline-block;">Explorar Receitas</a>
+        <p>Explore preparos autênticos da culinária nortista, do tucupi ao açaí.</p>
+
+        <!-- 🔍 Form de Pesquisa -->
+        <form action="/" method="GET" class="search-form">
+            <input
+                type="text"
+                name="q"
+                placeholder="Busque por receita ou ingrediente (ex: Tucupi, Jambú, Tacacá)..."
+                value="{{ busca or '' }}"
+                class="search-input">
+            <button type="submit" class="btn-cta search-btn">🔎 Pesquisar</button>
+            {% if busca %}
+                <a href="/" class="btn-clear-search">Limpar busca</a>
+            {% endif %}
+        </form>
     </section>
 
     <!-- Grid de Receitas -->
     <main class="container" id="receitas">
-        <h2>Pratos em Destaque</h2>
+        <h2>
+            {% if busca %}
+                Resultados para "{{ busca }}" ({{ receitas|length }})
+            {% else %}
+                Pratos em Destaque
+            {% endif %}
+        </h2>
+
+        {% if receitas %}
         <div class="recipe-grid">
             {% for receita in receitas %}
             <div class="recipe-card">
@@ -57,9 +78,7 @@
                     <div>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
                             <div class="card-tag" style="margin-bottom: 0;">{{ receita.categoria }}</div>
-
-                            <!-- ⭐ Badge da Média de Estrelas -->
-                            <div class="rating-badge" title="Média de {{ receita.media_estrelas }} baseada em {{ receita.qtd_avaliacoes }} avaliações">
+                            <div class="rating-badge">
                                 {% if receita.qtd_avaliacoes > 0 %}
                                     <span style="color: #ffb703; font-weight: 700;">★ {{ receita.media_estrelas }}</span>
                                     <span style="color: var(--text-secondary); font-size: 0.8rem;">({{ receita.qtd_avaliacoes }})</span>
@@ -68,16 +87,17 @@
                                 {% endif %}
                             </div>
                         </div>
-
                         <h3>{{ receita.nome }}</h3>
                         <p>{{ receita.descricao }}</p>
                     </div>
-
                     <a href="/receita/{{ receita.id }}" class="card-link">Ver receita →</a>
                 </div>
             </div>
             {% endfor %}
         </div>
+        {% else %}
+            <p class="no-reviews">Nenhuma receita encontrada para "{{ busca }}". Tente buscar por outros ingredientes!</p>
+        {% endif %}
     </main>
 
     <footer>

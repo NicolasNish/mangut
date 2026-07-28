@@ -32,21 +32,63 @@
             <div class="profile-avatar">
                 <span>{{ usuario.nome[0] | upper }}</span>
             </div>
-            <div class="profile-details">
-                <div style="display: flex; align-items: center; gap: 0.8rem;">
-                    <h1>{{ usuario.nome }}</h1>
-                    {% if usuario.is_admin %}
-                        <span class="card-tag" style="background: #e63946; color: white;">Administrador</span>
-                    {% else %}
-                        <span class="card-tag">Gastrônomo</span>
-                    {% endif %}
+
+            <div class="profile-details" style="flex-grow: 1;">
+                <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 0.8rem;">
+                            <h1>{{ usuario.nome }}</h1>
+                            {% if usuario.is_admin %}
+                                <span class="card-tag" style="background: #e63946; color: white;">Administrador</span>
+                            {% else %}
+                                <span class="card-tag">Gastrônomo</span>
+                            {% endif %}
+                        </div>
+                        <p class="profile-email">✉️ {{ usuario.email }}</p>
+                        <p class="profile-phone">📞 {{ usuario.telefone or 'Nenhum telefone cadastrado' }}</p>
+                    </div>
+
+                    <!-- Botão de abrir modal para Editar Perfil -->
+                    <div style="display: flex; gap: 0.5rem;">
+                        <button onclick="document.getElementById('edit-profile-modal').style.display='flex'" class="btn-primary" style="font-size: 0.85rem; padding: 0.5rem 0.9rem;">✏️ Editar Dados</button>
+                    </div>
                 </div>
-                <p class="profile-email">✉️ {{ usuario.email }}</p>
-                {% if usuario.telefone %}
-                    <p class="profile-phone">📞 {{ usuario.telefone }}</p>
-                {% endif %}
             </div>
         </section>
+
+        <!-- Modal de Edição do Perfil -->
+        <div id="edit-profile-modal" class="modal-overlay" style="display: none;">
+            <div class="modal-box" style="text-align: left; max-width: 480px;">
+                <h3 style="margin-bottom: 1rem;">✏️ Editar Dados Pessoais</h3>
+
+                <form action="/perfil/editar" method="POST" class="recipe-form">
+                    <div class="form-group">
+                        <label for="nome">Nome Completo:</label>
+                        <input type="text" id="nome" name="nome" value="{{ usuario.nome }}" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefone">Telefone / WhatsApp:</label>
+                        <input type="text" id="telefone" name="telefone" value="{{ usuario.telefone or '' }}" placeholder="(91) 99999-9999">
+                    </div>
+
+                    <div style="display: flex; gap: 0.8rem; margin-top: 1rem;">
+                        <button type="submit" class="btn-primary" style="flex: 1;">Salvar Alterações</button>
+                        <button type="button" onclick="document.getElementById('edit-profile-modal').style.display='none'" class="btn-secondary-modal" style="flex: 1;">Cancelar</button>
+                    </div>
+                </form>
+
+                <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+                <!-- Excluir Conta -->
+                <div>
+
+                    <form action="/perfil/excluir-conta" method="POST" onsubmit="return confirm('ATENÇÃO: Tem certeza que deseja apagar sua conta? Esta ação NÃO pode ser desfeita e apagará todas as suas receitas.');">
+                        <button type="submit" class="btn-primary" style="background-color: #d90429; width: 100%; font-size: 0.85rem;">🗑️ Excluir Minha Conta</button>
+                    </form>
+                </div>
+            </div>
+        </div>
 
         <!-- Seção: Minhas Receitas Publicadas -->
         <section class="profile-section">

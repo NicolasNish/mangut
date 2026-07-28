@@ -17,14 +17,17 @@
         <a href="/" class="logo-link">
             <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
         </a>
-        <nav class="nav-links">
-            <a href="/">Receitas</a>
-            <a href="#">Recomendações</a>
-            <a href="#">Sobre</a>
-        </nav>
         <div class="nav-actions">
             {% if current_user.is_authenticated %}
+                <!-- Link direto para o perfil -->
+                <a href="/perfil" style="font-weight: 600; color: var(--text-accent); font-size: 0.9rem; text-decoration: none;" title="Ver meu perfil">
+                    👤 {{ current_user.nome }} {% if current_user.is_admin %}(ADM){% endif %}
+                </a>
+                <a href="/receita/nova" class="btn-primary" style="text-decoration: none;">+ Nova Receita</a>
                 <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
+            {% else %}
+                <a href="/login" class="btn-primary" style="text-decoration: none;">Entrar</a>
+                <a href="/cadastro" style="color: var(--text-accent); font-weight: 600; text-decoration: none;">Cadastrar</a>
             {% endif %}
         </div>
     </header>

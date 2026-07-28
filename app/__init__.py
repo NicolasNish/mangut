@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -13,11 +14,18 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mangut.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
+    # 📸 Configuração da pasta de Upload de Imagens
+    UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
+    app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limite de 16MB por arquivo
+
+    # Garante que a pasta app/static/uploads exista no computador
+    os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
     db.init_app(app)
 
-    # Configuração do Flask-Login
     login_manager.init_app(app)
-    login_manager.login_view = 'main.login'  # Rota para redirecionar caso não esteja logado
+    login_manager.login_view = 'main.login'
     login_manager.login_message = 'Por favor, faça login para acessar esta página.'
 
     from app import models

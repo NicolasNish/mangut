@@ -3,74 +3,77 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastrar Nova Receita - Mangut</title>
+    <title>Nova Receita - Mangut</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/png">
 </head>
 <body>
-
-    <!-- Header / Navbar -->
     <header class="navbar">
-    <a href="/" class="logo-link">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
-    </a>
-    <nav class="nav-links">
-        <a href="#">Receitas</a>
-        <a href="#">Recomendações</a>
-        <a href="#">Sobre</a>
-    </nav>
-    <div class="nav-actions">
-    {% if current_user.is_authenticated %}
-        <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
-    {% endif %}
-    </div>
-</header>
+        <a href="/" class="logo-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
+        </a>
+        <nav class="nav-links">
+            <a href="/">← Cancelar e Voltar</a>
+        </nav>
+        <div class="nav-actions">
+            {% if current_user.is_authenticated %}
+                <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
+            {% endif %}
+        </div>
+    </header>
 
     <main class="container">
         <section class="form-section">
-            <h1>➕ Cadastrar Nova Receita Nortista</h1>
-            <p class="form-subtext">Compartilhe um prato tradicional ou uma criação autoral com a comunidade.</p>
+            <h1>➕ Cadastrar Nova Receita</h1>
+            <p class="form-subtext">Compartilhe um prato típico ou iguaria com a comunidade Mangut.</p>
 
-            <form action="/receita/nova" method="POST" class="recipe-form">
-
+            <!-- enctype="multipart/form-data" é obrigatório para envio de arquivos -->
+            <form action="/receita/nova" method="POST" enctype="multipart/form-data" class="recipe-form">
                 <div class="form-group">
                     <label for="nome">Nome da Receita:</label>
-                    <input type="text" id="nome" name="nome" placeholder="Ex: Vatapá Paraense" required>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Caldeirada de Filhote" required>
                 </div>
 
                 <div class="form-group">
                     <label for="categoria_id">Categoria:</label>
                     <select id="categoria_id" name="categoria_id" required>
+                        <option value="" disabled selected>Selecione uma categoria...</option>
                         {% for cat in categorias %}
-                        <option value="{{ cat.idcategoria }}">{{ cat.nome }}</option>
+                            <option value="{{ cat.idcategoria }}">{{ cat.nome }}</option>
                         {% endfor %}
                     </select>
                 </div>
 
+                <!-- Campo de Upload do Computador -->
+                <div class="form-group">
+                    <label for="imagem_arquivo">🖼️ Enviar Foto do Computador:</label>
+                    <input type="file" id="imagem_arquivo" name="imagem_arquivo" accept="image/*">
+                </div>
+
+                <div class="form-group">
+                    <label for="imagem_url">Ou Cole o Link de uma Imagem (URL):</label>
+                    <input type="url" id="imagem_url" name="imagem_url" placeholder="https://exemplo.com/imagem.jpg">
+                </div>
+
                 <div class="form-group">
                     <label for="descricao">Breve Descrição:</label>
-                    <input type="text" id="descricao" name="descricao" placeholder="Ex: Vatapá cremoso à base de pão, camarão seco e azeite de dendê." required>
+                    <textarea id="descricao" name="descricao" rows="2" placeholder="Resumo do prato, origem ou acompanhamento ideal..." required></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="lista_ingredientes">Ingredientes (separados por vírgula):</label>
-                    <textarea id="lista_ingredientes" name="lista_ingredientes" rows="3" placeholder="Ex: Pão amanhecido, leite de coco, camarão seco, dendê, pimenta-de-cheiro" required></textarea>
+                    <textarea id="lista_ingredientes" name="lista_ingredientes" rows="3" placeholder="Ex: 1kg de filhote em postas, 2 tucupis, folhas de jambu, pimenta-de-cheiro" required></textarea>
                 </div>
 
                 <div class="form-group">
                     <label for="modo_preparo">Modo de Preparo:</label>
-                    <textarea id="modo_preparo" name="modo_preparo" rows="5" placeholder="Descreva os passos do preparo..." required></textarea>
+                    <textarea id="modo_preparo" name="modo_preparo" rows="5" placeholder="Descreva o passo a passo detalhado..." required></textarea>
                 </div>
 
-                <div class="form-group">
-                    <label for="imagem_url">URL da Imagem (Link da foto na internet):</label>
-                    <input type="url" id="imagem_url" name="imagem_url" placeholder="https://exemplo.com/foto-do-prato.jpg">
-                </div>
-
-                <button type="submit" class="btn-primary btn-submit">Salvar Receita</button>
+                <button type="submit" class="btn-primary btn-submit">Publicar Receita</button>
             </form>
         </section>
     </main>
@@ -79,9 +82,7 @@
         <p>&copy; 2026 Mangut. Todos os direitos reservados.</p>
     </footer>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
     <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
-
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

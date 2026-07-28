@@ -688,3 +688,42 @@ footer {
     color: var(--text-secondary);
     font-size: 0.85rem;
 }
+
+/* Barra de Pesquisa de Receitas */
+.search-form {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 0.6rem;
+    max-width: 650px;
+    margin: 1.5rem auto 0 auto;
+    flex-wrap: wrap;
+}
+
+.search-input {
+    flex: 1;
+    min-width: 280px;
+    padding: 0.85rem 1.2rem;
+    border: 1px solid var(--border-color);
+    border-radius: 25px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    box-shadow: 0 2px 8px var(--card-shadow);
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: var(--text-accent);
+}
+
+.search-btn {
+    padding: 0.85rem 1.5rem !important;
+}
+
+.btn-clear-search {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-decoration: underline;
+    margin-left: 0.5rem;
+}
