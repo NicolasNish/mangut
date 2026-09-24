@@ -14,25 +14,31 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///mangut.db'
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-    # 📸 Configuração da pasta de Upload de Imagens
+    # Configuração de pasta para uploads locais
     UPLOAD_FOLDER = os.path.join(app.root_path, 'static', 'uploads')
     app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # Limite de 16MB por arquivo
+    app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16 MB
 
-    # Garante que a pasta app/static/uploads exista no computador
     os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
     db.init_app(app)
 
     login_manager.init_app(app)
     login_manager.login_view = 'main.login'
-    login_manager.login_message = 'Por favor, faça login para acessar esta página.'
+    login_manager.login_message = 'Por favor, inicie sessão para aceder a esta página.'
 
-    from app import models
+    # Importação dos modelos
+    from app.models import Gastronomo
+
+    # 🔑 USER_LOADER: diz ao Flask-Login como recarregar o utilizador a partir do ID da sessão
+    @login_manager.user_loader
+    def load_user(user_id):
+        return Gastronomo.query.get(int(user_id))
 
     with app.app_context():
         db.create_all()
 
+    # Registo do Blueprint de rotas
     from app.routes import main
     app.register_blueprint(main)
 

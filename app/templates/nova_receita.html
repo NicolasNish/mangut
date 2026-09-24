@@ -28,13 +28,12 @@
     <main class="container">
         <section class="form-section">
             <h1>➕ Cadastrar Nova Receita</h1>
-            <p class="form-subtext">Compartilhe um prato típico ou iguaria com a comunidade Mangut.</p>
+            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Compartilhe seu preparo com os gastrônomos da comunidade Mangut.</p>
 
-            <!-- enctype="multipart/form-data" é obrigatório para envio de arquivos -->
             <form action="/receita/nova" method="POST" enctype="multipart/form-data" class="recipe-form">
                 <div class="form-group">
-                    <label for="nome">Nome da Receita:</label>
-                    <input type="text" id="nome" name="nome" placeholder="Ex: Caldeirada de Filhote" required>
+                    <label for="nome">Nome do Prato:</label>
+                    <input type="text" id="nome" name="nome" placeholder="Ex: Filhote ao Molho de Castanha-do-Pará" required>
                 </div>
 
                 <div class="form-group">
@@ -47,39 +46,42 @@
                     </select>
                 </div>
 
-                <!-- Campo de Upload do Computador -->
+                <!-- Apenas foto do computador -->
                 <div class="form-group">
-                    <label for="imagem_arquivo">🖼️ Enviar Foto do Computador:</label>
+                    <label for="imagem_arquivo">📸 Foto do Prato (Arquivo do seu computador):</label>
                     <input type="file" id="imagem_arquivo" name="imagem_arquivo" accept="image/*">
+                    <span class="input-hint">Formatos suportados: JPG, PNG, WEBP.</span>
                 </div>
 
                 <div class="form-group">
-                    <label for="imagem_url">Ou Cole o Link de uma Imagem (URL):</label>
-                    <input type="url" id="imagem_url" name="imagem_url" placeholder="https://exemplo.com/imagem.jpg">
+                    <label for="descricao">Breve Apresentação do Prato:</label>
+                    <textarea id="descricao" name="descricao" rows="2" placeholder="Resumo, origem do prato ou ocasião em que é servido..." required></textarea>
                 </div>
 
+                <!-- Ingredientes Estruturados: 1 por linha com quantidade -->
                 <div class="form-group">
-                    <label for="descricao">Breve Descrição:</label>
-                    <textarea id="descricao" name="descricao" rows="2" placeholder="Resumo do prato, origem ou acompanhamento ideal..." required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label for="lista_ingredientes">Ingredientes (separados por vírgula):</label>
-                    <textarea id="lista_ingredientes" name="lista_ingredientes" rows="3" placeholder="Ex: 1kg de filhote em postas, 2 tucupis, folhas de jambu, pimenta-de-cheiro" required></textarea>
+                    <label for="lista_ingredientes">Ingredientes e Quantidades (Digite um por linha):</label>
+                    <textarea
+                        id="lista_ingredientes"
+                        name="lista_ingredientes"
+                        rows="6"
+                        placeholder="Ex:&#10;1 kg de filhote em postas&#10;2 xícaras de leite de castanha-do-Pará&#10;1 maço de jambu aferventado&#10;3 dentes de alho picados&#10;Sal e pimenta-de-cheiro a gosto"
+                        required></textarea>
+                    <span class="input-hint">Dica: aperte Enter para cada ingrediente com sua respectiva medida.</span>
                 </div>
 
                 <div class="form-group">
                     <label for="modo_preparo">Modo de Preparo:</label>
-                    <textarea id="modo_preparo" name="modo_preparo" rows="5" placeholder="Descreva o passo a passo detalhado..." required></textarea>
+                    <textarea id="modo_preparo" name="modo_preparo" rows="6" placeholder="Descreva o passo a passo com clareza..." required></textarea>
                 </div>
 
-                <button type="submit" class="btn-primary btn-submit">Publicar Receita</button>
+                <button type="submit" class="btn-primary" style="padding: 0.9rem; font-size: 1rem; justify-content: center; width: 100%;">Publicar Receita</button>
             </form>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2026 Mangut. Todos os direitos reservados.</p>
+        <p>&copy; 2026 Mangut. Culinária e tradição do Norte.</p>
     </footer>
 
     <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>

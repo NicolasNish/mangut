@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Categorias - Mangut</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar">
+        <a href="/" class="logo-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
+        </a>
+        <nav class="nav-links">
+            <a href="/receitas">Receitas</a>
+            <a href="/categorias" class="active">Categorias</a>
+            <a href="/sobre">Sobre</a>
+        </nav>
+        <div class="nav-actions">
+            {% if current_user.is_authenticated %}
+                <a href="/logout" class="btn-logout">🚪 Sair</a>
+            {% else %}
+                <a href="/login" class="btn-primary">Entrar</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>Categorias da Culinária Nortista</h2>
+        <p style="color: var(--text-secondary); margin-bottom: 2.5rem;">Explore as iguarias separadas por tradição e tipo de preparo.</p>
+
+        {% for cat in categorias %}
+        <section style="margin-bottom: 3.5rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 2px solid var(--border-color); padding-bottom: 0.5rem;">
+                <h3 style="color: var(--text-accent); font-size: 1.4rem;">🍲 {{ cat.nome }} ({{ cat.qtd_receitas }})</h3>
+                <a href="/receitas?categoria={{ cat.id }}" style="color: var(--text-secondary); font-size: 0.9rem; font-weight: 600; text-decoration: none;">Ver todas desta categoria →</a>
+            </div>
+
+            {% if cat.receitas %}
+            <div class="recipe-grid">
+                {% for receita in cat.receitas %}
+                <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="recipe-card-link">
+                    {% if receita.imagem_url %}
+                        <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
+                    {% endif %}
+                    <div class="card-content">
+                        <h3>{{ receita.nome }}</h3>
+                        <p>{{ receita.descricao }}</p>
+                        <span class="card-footer-action">Ver preparo →</span>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+                <p style="color: var(--text-secondary); font-style: italic;">Nenhum prato cadastrado nesta categoria ainda.</p>
+            {% endif %}
+        </section>
+        {% endfor %}
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mangut. Culinária e tradição do Norte.</p>
+    </footer>
+
+    <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

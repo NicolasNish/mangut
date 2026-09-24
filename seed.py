@@ -33,12 +33,15 @@ def popular_banco():
         db.session.add_all([chef, admin])
         db.session.commit()
 
-        # 3. Categorias
+        # 3. Categorias Típicas Nortistas
+        cat_peixes = Categoria(nome="Peixes e Frutos do Rio")
         cat_caldos = Categoria(nome="Caldos e Sopas")
         cat_pratos = Categoria(nome="Pratos Principais")
-        cat_doces = Categoria(nome="Sobremesas")
+        cat_acompanhamentos = Categoria(nome="Farinhas e Acompanhamentos")
+        cat_doces = Categoria(nome="Sobremesas e Frutas Nativas")
+        cat_bebidas = Categoria(nome="Bebidas e Sucos Típicos")
 
-        db.session.add_all([cat_caldos, cat_pratos, cat_doces])
+        db.session.add_all([cat_peixes, cat_caldos, cat_pratos, cat_acompanhamentos, cat_doces, cat_bebidas])
         db.session.commit()
 
         # 4. Receitas

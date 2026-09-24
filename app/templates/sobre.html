@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sobre o Projeto - Mangut</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar">
+        <a href="/" class="logo-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
+        </a>
+        <nav class="nav-links">
+            <a href="/receitas">Receitas</a>
+            <a href="/categorias">Categorias</a>
+            <a href="/sobre" class="active">Sobre</a>
+        </nav>
+        <div class="nav-actions">
+            {% if current_user.is_authenticated %}
+                <a href="/logout" class="btn-logout">🚪 Sair</a>
+            {% else %}
+                <a href="/login" class="btn-primary">Entrar</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="about-hero">
+            <h1 style="color: var(--text-accent); margin-bottom: 1rem; font-size: 2.4rem;">Mangut: Tradição & Tecnologia</h1>
+            <p style="color: var(--text-secondary); max-width: 720px; margin: 0 auto; line-height: 1.7; font-size: 1.05rem;">
+                O <strong>Mangut</strong> é uma plataforma colaborativa projetada para conectar entusiastas da culinária amazônica, preservando técnicas ancestrais e estimulando o registro de receitas tradicionais da região Norte.
+            </p>
+        </section>
+
+        <!-- Equipe -->
+        <section>
+            <h2 style="text-align: center; margin-bottom: 0.5rem; color: var(--text-accent);">Equipe de Desenvolvimento</h2>
+            <p style="text-align: center; color: var(--text-secondary); margin-bottom: 2rem;">Conheça os desenvolvedores responsáveis pela concepção, engenharia e design do Mangut.</p>
+
+            <div class="team-grid">
+                <!-- Desenvolvedor 1 -->
+                <div class="team-card">
+                    <img src="{{ url_for('static', filename='img/dev1.jpg') }}"
+                         alt="Foto Desenvolvedor"
+                         class="team-photo"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="team-photo-placeholder" style="display: none;">👨‍💻</div>
+
+                    <h3>Nícolas Soares</h3>
+                    <p class="team-role">Bacharel em Sistemas de Informação</p>
+                    <p class="team-bio">
+                    Área de interesse: Análise e ciência de dados
+                    </p>
+                </div>
+
+                <!-- Desenvolvedor 2 -->
+                <div class="team-card">
+                    <img src="{{ url_for('static', filename='img/dev2.jpeg') }}"
+                         alt="Foto Designer"
+                         class="team-photo"
+                         onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="team-photo-placeholder" style="display: none;">🎨</div>
+
+                    <h3>Joel Lima</h3>
+                    <p class="team-role">Bacharel em Sistemas de Informação</p>
+                    <p class="team-bio">
+                    Área de interesse: Banco de dados relacionais
+                    </p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mangut. Culinária e tradição do Norte.</p>
+    </footer>
+
+    <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

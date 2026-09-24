@@ -4,40 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar {{ receita.nome }} - Mangut</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/png">
 </head>
 <body>
-
-    <!-- Header / Navbar -->
     <header class="navbar">
-    <a href="/" class="logo-link">
-        <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
-    </a>
-    <nav class="nav-links">
-        <a href="#">Receitas</a>
-        <a href="#">Recomendações</a>
-        <a href="#">Sobre</a>
-    </nav>
-    <div class="nav-actions">
-    {% if current_user.is_authenticated %}
-        <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
-    {% endif %}
-    </div>
-</header>
+        <a href="/" class="logo-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
+        </a>
+        <nav class="nav-links">
+            <a href="/receita/{{ receita.id }}">← Voltar para a Receita</a>
+        </nav>
+        <div class="nav-actions">
+            {% if current_user.is_authenticated %}
+                <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
+            {% endif %}
+        </div>
+    </header>
 
     <main class="container">
         <section class="form-section">
             <h1>✏️ Editar Receita</h1>
-            <p class="form-subtext">Ajuste os dados da receita abaixo para atualizar o banco de dados.</p>
+            <p class="form-subtext">Atualize as informações da sua receita.</p>
 
-            <form action="/receita/{{ receita.id }}/editar" method="POST" class="recipe-form">
-
+            <form action="/receita/{{ receita.id }}/editar" method="POST" enctype="multipart/form-data" class="recipe-form">
                 <div class="form-group">
-                    <label for="nome">Nome da Receita:</label>
+                    <label for="nome">Nome do Prato:</label>
                     <input type="text" id="nome" name="nome" value="{{ receita.nome }}" required>
                 </div>
 
@@ -53,23 +48,25 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="descricao">Breve Descrição:</label>
-                    <input type="text" id="descricao" name="descricao" value="{{ receita.descricao }}" required>
+                    <label for="imagem_arquivo">📸 Atualizar Foto (do computador):</label>
+                    <input type="file" id="imagem_arquivo" name="imagem_arquivo" accept="image/*">
+                    <span class="input-hint">Deixe em branco para manter a imagem atual.</span>
                 </div>
 
                 <div class="form-group">
-                    <label for="imagem_url">URL da Imagem (Link da Web):</label>
-                    <input type="url" id="imagem_url" name="imagem_url" value="{{ receita.imagem_url or '' }}">
+                    <label for="descricao">Breve Apresentação do Prato:</label>
+                    <textarea id="descricao" name="descricao" rows="3" required>{{ receita.descricao }}</textarea>
                 </div>
 
                 <div class="form-group">
-                    <label for="lista_ingredientes">Ingredientes (separados por vírgula):</label>
-                    <textarea id="lista_ingredientes" name="lista_ingredientes" rows="3" required>{{ receita.lista_ingredientes }}</textarea>
+                    <label for="lista_ingredientes">Ingredientes e Quantidades (Um por linha):</label>
+                    <textarea id="lista_ingredientes" name="lista_ingredientes" rows="6" required>{{ receita.lista_ingredientes }}</textarea>
+                    <span class="input-hint">Mantenha cada ingrediente com sua medida em uma linha separada.</span>
                 </div>
 
                 <div class="form-group">
                     <label for="modo_preparo">Modo de Preparo:</label>
-                    <textarea id="modo_preparo" name="modo_preparo" rows="5" required>{{ receita.modo_preparo }}</textarea>
+                    <textarea id="modo_preparo" name="modo_preparo" rows="7" required>{{ receita.modo_preparo }}</textarea>
                 </div>
 
                 <button type="submit" class="btn-primary btn-submit">Salvar Alterações</button>
@@ -78,12 +75,10 @@
     </main>
 
     <footer>
-        <p>&copy; 2026 Mangut. Todos os direitos reservados.</p>
+        <p>&copy; 2026 Mangut. Culinária e tradição do Norte.</p>
     </footer>
 
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
-
     <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
-
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

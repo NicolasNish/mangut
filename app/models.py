@@ -1,60 +1,66 @@
-from app import db, login_manager
+from app import db
 from flask_login import UserMixin
+from sqlalchemy import UniqueConstraint
 
-
-# Função necessária para o Flask-Login carregar o usuário logado a partir da sessão
-@login_manager.user_loader
-def load_user(user_id):
-    return Gastronomo.query.get(int(user_id))
-
-
-class Gastronomo(db.Model, UserMixin):
+class Gastronomo(UserMixin, db.Model):
     __tablename__ = 'gastronomos'
-    idgastronomos = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(45), nullable=False)
-    email = db.Column(db.String(55), unique=True, nullable=False)
-    telefone = db.Column(db.String(12))
-    senha = db.Column(db.String(255), nullable=False)
-    is_admin = db.Column(db.Boolean, default=False)  # 👑 Define se o usuário é Administrador
 
-    # Sobrescreve o método get_id do UserMixin para usar idgastronomos como chave primária
+    idgastronomos = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(100), nullable=False)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    senha = db.Column(db.String(255), nullable=False)
+    telefone = db.Column(db.String(20), nullable=True)
+    is_admin = db.Column(db.Boolean, default=False)
+
+    # Relacionamentos usando back_populates (evita conflito de backref)
+    receitas = db.relationship('Receita', back_populates='autor', lazy=True)
+    avaliacoes = db.relationship('AvaliacaoReceita', back_populates='usuario', lazy=True, cascade='all, delete-orphan')
+
     def get_id(self):
         return str(self.idgastronomos)
-
-    # Relacionamentos
-    receitas = db.relationship('Receita', backref='autor', lazy=True)
-    avaliacoes = db.relationship('AvaliacaoReceita', backref='usuario', lazy=True)
 
 
 class Categoria(db.Model):
     __tablename__ = 'categoria'
-    idcategoria = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(45), nullable=False)
 
-    receitas = db.relationship('Receita', backref='categoria_rel', lazy=True)
+    idcategoria = db.Column(db.Integer, primary_key=True)
+    nome = db.Column(db.String(50), nullable=False)
+
+    receitas = db.relationship('Receita', back_populates='categoria_rel', lazy=True)
 
 
 class Receita(db.Model):
     __tablename__ = 'receitas'
+
     idreceitas = db.Column(db.Integer, primary_key=True)
-    nome = db.Column(db.String(90), nullable=False)
-    descricao = db.Column(db.String(255))
+    nome = db.Column(db.String(100), nullable=False)
+    descricao = db.Column(db.Text, nullable=False)
     lista_ingredientes = db.Column(db.Text, nullable=False)
     modo_preparo = db.Column(db.Text, nullable=False)
-    imagem_url = db.Column(db.String(500), nullable=True)
+    imagem_url = db.Column(db.String(255), nullable=True)
 
-    # Chaves Estrangeiras
-    gastronomos_idgastronomos = db.Column(db.Integer, db.ForeignKey('gastronomos.idgastronomos'), nullable=False)
     categoria_idcategoria = db.Column(db.Integer, db.ForeignKey('categoria.idcategoria'), nullable=False)
+    gastronomos_idgastronomos = db.Column(db.Integer, db.ForeignKey('gastronomos.idgastronomos'), nullable=False)
 
-    avaliacoes = db.relationship('AvaliacaoReceita', backref='receita', lazy=True)
+    categoria_rel = db.relationship('Categoria', back_populates='receitas')
+    autor = db.relationship('Gastronomo', back_populates='receitas')
+    avaliacoes = db.relationship('AvaliacaoReceita', back_populates='receita', lazy=True, cascade='all, delete-orphan')
 
 
 class AvaliacaoReceita(db.Model):
     __tablename__ = 'avaliacoes_receitas'
+
     id = db.Column(db.Integer, primary_key=True)
     avaliacoes = db.Column(db.Integer, nullable=False)
-    comentario = db.Column(db.String(500))
+    comentario = db.Column(db.Text, nullable=True)
 
     receitas_idreceitas = db.Column(db.Integer, db.ForeignKey('receitas.idreceitas'), nullable=False)
-    gastronomos_idgastronomos = db.Column(db.Integer, db.ForeignKey('gastronomos.idgastronomos'), nullable=True)
+    gastronomos_idgastronomos = db.Column(db.Integer, db.ForeignKey('gastronomos.idgastronomos'), nullable=False)
+
+    receita = db.relationship('Receita', back_populates='avaliacoes')
+    usuario = db.relationship('Gastronomo', back_populates='avaliacoes')
+
+    # Garante no banco que cada usuário só avalia uma receita 1 vez
+    __table_args__ = (
+        UniqueConstraint('receitas_idreceitas', 'gastronomos_idgastronomos', name='uq_usuario_receita_avaliacao'),
+    )

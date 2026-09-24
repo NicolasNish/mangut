@@ -9,54 +9,98 @@ from app.models import Receita, AvaliacaoReceita, Categoria, Gastronomo
 
 main = Blueprint('main', __name__)
 
-# Extensões de imagem permitidas para upload
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
 def salvar_imagem(file):
-    """Função auxiliar para validar e salvar a imagem enviada do computador."""
+    """Valida e salva a imagem do computador no diretório static/uploads."""
     if file and file.filename != '':
         extensao = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
         if extensao in ALLOWED_EXTENSIONS:
-            # Gera um nome único usando UUID para evitar sobreposição de arquivos no disco
             nome_arquivo = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
             caminho_completo = os.path.join(current_app.config['UPLOAD_FOLDER'], nome_arquivo)
             file.save(caminho_completo)
-            # Retorna o caminho relativo acessível pela web
             return f"/static/uploads/{nome_arquivo}"
     return None
 
 
-# 🟢 Página Inicial (Home)
-@main.route('/')
-def index():
-    query = request.args.get('q', '').strip()
-
-    if query:
-        # Busca por nome OU por ingredientes
-        receitas_db = Receita.query.filter(
-            (Receita.nome.ilike(f'%{query}%')) |
-            (Receita.lista_ingredientes.ilike(f'%{query}%'))
-        ).all()
-    else:
-        receitas_db = Receita.query.all()
-
-    receitas_formatadas = []
+def formatar_receitas(query_obj):
+    """Função utilitária para formatar receitas com as respetivas médias."""
+    receitas_db = query_obj.all()
+    formatadas = []
     for r in receitas_db:
         avaliacoes = AvaliacaoReceita.query.filter_by(receitas_idreceitas=r.idreceitas).all()
-        qtd_avaliacoes = len(avaliacoes)
-        media_estrelas = round(sum(a.avaliacoes for a in avaliacoes) / qtd_avaliacoes, 1) if qtd_avaliacoes > 0 else 0.0
-
-        receitas_formatadas.append({
+        qtd = len(avaliacoes)
+        media = round(sum(a.avaliacoes for a in avaliacoes) / qtd, 1) if qtd > 0 else 0.0
+        formatadas.append({
             "id": r.idreceitas,
             "nome": r.nome,
             "categoria": r.categoria_rel.nome,
+            "categoria_id": r.categoria_idcategoria,
             "descricao": r.descricao,
-            "imagem_url": r.imagem_url or "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
-            "media_estrelas": media_estrelas,
-            "qtd_avaliacoes": qtd_avaliacoes
+            "imagem_url": r.imagem_url,  # 🟢 Fica None caso não exista foto
+            "media_estrelas": media,
+            "qtd_avaliacoes": qtd
         })
+    return formatadas
 
-    return render_template('index.html', receitas=receitas_formatadas, busca=query)
+
+# 🟢 Página Inicial (Home / Landing Page)
+@main.route('/')
+def index():
+    # Na Home trazemos os pratos em destaque
+    receitas_destaque = formatar_receitas(Receita.query.limit(6))
+    return render_template('index.html', receitas=receitas_destaque)
+
+
+# 🍲 Página Dedicada: Catálogo Completo de Receitas com Filtro Multicategoria
+@main.route('/receitas')
+def catalogo_receitas():
+    query = request.args.get('q', '').strip()
+    categorias_selecionadas = request.args.getlist('categoria', type=int)
+
+    consulta = Receita.query
+
+    if categorias_selecionadas:
+        consulta = consulta.filter(Receita.categoria_idcategoria.in_(categorias_selecionadas))
+
+    if query:
+        consulta = consulta.filter(
+            (Receita.nome.ilike(f'%{query}%')) |
+            (Receita.lista_ingredientes.ilike(f'%{query}%'))
+        )
+
+    receitas_formatadas = formatar_receitas(consulta)
+    todas_categorias = Categoria.query.all()
+
+    return render_template(
+        'receitas.html',
+        receitas=receitas_formatadas,
+        categorias=todas_categorias,
+        categorias_selecionadas=categorias_selecionadas,
+        busca=query
+    )
+
+
+# 📂 Página Dedicada: Categorias da Gastronomia
+@main.route('/categorias')
+def ver_categorias():
+    categorias = Categoria.query.all()
+    dados_categorias = []
+    for cat in categorias:
+        receitas_cat = formatar_receitas(Receita.query.filter_by(categoria_idcategoria=cat.idcategoria))
+        dados_categorias.append({
+            "id": cat.idcategoria,
+            "nome": cat.nome,
+            "qtd_receitas": len(receitas_cat),
+            "receitas": receitas_cat
+        })
+    return render_template('categorias.html', categorias=dados_categorias)
+
+
+# 🌿 Página Dedicada: Sobre o Projeto e Desenvolvedores
+@main.route('/sobre')
+def sobre():
+    return render_template('sobre.html')
 
 
 # 🔐 Autenticação: Cadastro
@@ -122,23 +166,7 @@ def logout():
 @main.route('/perfil')
 @login_required
 def perfil():
-    receitas_usuario = Receita.query.filter_by(gastronomos_idgastronomos=current_user.idgastronomos).all()
-    receitas_formatadas = []
-
-    for r in receitas_usuario:
-        avaliacoes = AvaliacaoReceita.query.filter_by(receitas_idreceitas=r.idreceitas).all()
-        qtd_avaliacoes = len(avaliacoes)
-        media_estrelas = round(sum(a.avaliacoes for a in avaliacoes) / qtd_avaliacoes, 1) if qtd_avaliacoes > 0 else 0.0
-
-        receitas_formatadas.append({
-            "id": r.idreceitas,
-            "nome": r.nome,
-            "categoria": r.categoria_rel.nome,
-            "descricao": r.descricao,
-            "imagem_url": r.imagem_url or "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
-            "media_estrelas": media_estrelas,
-            "qtd_avaliacoes": qtd_avaliacoes
-        })
+    receitas_usuario = formatar_receitas(Receita.query.filter_by(gastronomos_idgastronomos=current_user.idgastronomos))
 
     avaliacoes_usuario = AvaliacaoReceita.query.filter_by(gastronomos_idgastronomos=current_user.idgastronomos).all()
     avaliacoes_formatadas = []
@@ -153,12 +181,12 @@ def perfil():
     return render_template(
         'perfil.html',
         usuario=current_user,
-        receitas=receitas_formatadas,
+        receitas=receitas_usuario,
         avaliacoes=avaliacoes_formatadas
     )
 
 
-# ✏️ Rota POST: Editar dados do Perfil
+# ✏️ Rota POST: Editar Perfil
 @main.route('/perfil/editar', methods=['POST'])
 @login_required
 def editar_perfil():
@@ -173,7 +201,7 @@ def editar_perfil():
     return redirect(url_for('main.perfil'))
 
 
-# 🗑️ Rota POST: Excluir a própria conta do usuário
+# 🗑️ Rota POST: Excluir Conta
 @main.route('/perfil/excluir-conta', methods=['POST'])
 @login_required
 def excluir_conta():
@@ -193,7 +221,7 @@ def excluir_conta():
     return redirect(url_for('main.index'))
 
 
-# ➕ Cadastrar Nova Receita (Apenas usuários logados)
+# ➕ Cadastrar Nova Receita
 @main.route('/receita/nova', methods=['GET', 'POST'])
 @login_required
 def formulario_nova_receita():
@@ -204,20 +232,15 @@ def formulario_nova_receita():
         lista_ingredientes = request.form.get('lista_ingredientes')
         modo_preparo = request.form.get('modo_preparo')
 
-        # 1. Tenta salvar o arquivo enviado do computador
         file_imagem = request.files.get('imagem_arquivo')
         imagem_url = salvar_imagem(file_imagem)
-
-        # 2. Se não enviou arquivo do PC, pega a URL informada no input de texto
-        if not imagem_url:
-            imagem_url = request.form.get('imagem_url')
 
         if nome and categoria_id and lista_ingredientes and modo_preparo:
             nova_receita = Receita(
                 nome=nome,
                 descricao=descricao,
-                lista_ingredientes=lista_ingredientes,
-                modo_preparo=modo_preparo,
+                lista_ingredientes=lista_ingredientes.strip(),
+                modo_preparo=modo_preparo.strip(),
                 imagem_url=imagem_url,
                 categoria_idcategoria=int(categoria_id),
                 gastronomos_idgastronomos=current_user.idgastronomos
@@ -234,15 +257,32 @@ def formulario_nova_receita():
 @main.route('/receita/<int:id>')
 def detalhe_receita(id):
     receita = Receita.query.get_or_404(id)
-    ingredientes = receita.lista_ingredientes.split(',') if receita.lista_ingredientes else []
+
+    if receita.lista_ingredientes:
+        if '\n' in receita.lista_ingredientes:
+            ingredientes = [linha.strip() for linha in receita.lista_ingredientes.splitlines() if linha.strip()]
+        else:
+            ingredientes = [item.strip() for item in receita.lista_ingredientes.split(',') if item.strip()]
+    else:
+        ingredientes = []
 
     avaliacoes_db = AvaliacaoReceita.query.filter_by(receitas_idreceitas=id).all()
     qtd_avaliacoes = len(avaliacoes_db)
+    media_estrelas = round(sum(a.avaliacoes for a in avaliacoes_db) / qtd_avaliacoes, 1) if qtd_avaliacoes > 0 else 0.0
 
-    if qtd_avaliacoes > 0:
-        media_estrelas = round(sum(a.avaliacoes for a in avaliacoes_db) / qtd_avaliacoes, 1)
-    else:
-        media_estrelas = 0.0
+    # 🔍 Verificar se o usuário autenticado já avaliou esta receita
+    minha_avaliacao = None
+    if current_user.is_authenticated:
+        minha_avaliacao_obj = AvaliacaoReceita.query.filter_by(
+            receitas_idreceitas=id,
+            gastronomos_idgastronomos=current_user.idgastronomos
+        ).first()
+        if minha_avaliacao_obj:
+            minha_avaliacao = {
+                "id": minha_avaliacao_obj.id,
+                "nota": minha_avaliacao_obj.avaliacoes,
+                "comentario": minha_avaliacao_obj.comentario
+            }
 
     avaliacoes_formatadas = []
     for av in avaliacoes_db:
@@ -263,7 +303,7 @@ def detalhe_receita(id):
         "categoria": receita.categoria_rel.nome,
         "descricao": receita.descricao,
         "modo_preparo": receita.modo_preparo,
-        "imagem_url": receita.imagem_url or "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500",
+        "imagem_url": receita.imagem_url,  # 🟢 Sem placeholder externo
         "autor_id": receita.gastronomos_idgastronomos,
         "autor_nome": receita.autor.nome,
         "media_estrelas": media_estrelas,
@@ -274,11 +314,11 @@ def detalhe_receita(id):
         'receita.html',
         receita=dados_receita,
         ingredientes=ingredientes,
-        avaliacoes=avaliacoes_formatadas
+        avaliacoes=avaliacoes_formatadas,
+        minha_avaliacao=minha_avaliacao
     )
 
-
-# 🗑️ Rota POST: Excluir uma Avaliação
+# 🗑️ Excluir Avaliação
 @main.route('/avaliacao/<int:id>/excluir', methods=['POST'])
 @login_required
 def excluir_avaliacao(id):
@@ -294,7 +334,7 @@ def excluir_avaliacao(id):
     return redirect(url_for('main.detalhe_receita', id=receita_id))
 
 
-# ✏️ Editar Receita (Apenas Autor ou ADM)
+# ✏️ Editar Receita
 @main.route('/receita/<int:id>/editar', methods=['GET', 'POST'])
 @login_required
 def formulario_editar_receita(id):
@@ -307,17 +347,14 @@ def formulario_editar_receita(id):
         receita.nome = request.form.get('nome')
         receita.categoria_idcategoria = int(request.form.get('categoria_id'))
         receita.descricao = request.form.get('descricao')
-        receita.lista_ingredientes = request.form.get('lista_ingredientes')
-        receita.modo_preparo = request.form.get('modo_preparo')
+        receita.lista_ingredientes = request.form.get('lista_ingredientes').strip()
+        receita.modo_preparo = request.form.get('modo_preparo').strip()
 
-        # Tenta pegar uma nova foto enviada do computador
         file_imagem = request.files.get('imagem_arquivo')
         nova_imagem = salvar_imagem(file_imagem)
 
         if nova_imagem:
             receita.imagem_url = nova_imagem
-        elif request.form.get('imagem_url'):
-            receita.imagem_url = request.form.get('imagem_url')
 
         db.session.commit()
         return redirect(url_for('main.detalhe_receita', id=receita.idreceitas))
@@ -335,7 +372,7 @@ def formulario_editar_receita(id):
     return render_template('editar_receita.html', receita=dados_receita, categorias=categorias)
 
 
-# 🗑️ Excluir Receita (Apenas Autor ou ADM)
+# 🗑️ Excluir Receita
 @main.route('/receita/<int:id>/excluir', methods=['POST'])
 @login_required
 def excluir_receita(id):
@@ -347,24 +384,37 @@ def excluir_receita(id):
     AvaliacaoReceita.query.filter_by(receitas_idreceitas=id).delete()
     db.session.delete(receita)
     db.session.commit()
-    return redirect(url_for('main.index'))
+    return redirect(url_for('main.catalogo_receitas'))
 
 
-# ⭐ Avaliar Receita (Apenas Usuários Logados)
+# ⭐ Avaliar Receita (Apenas 1 vez por usuário)
 @main.route('/receita/<int:id>/avaliar', methods=['POST'])
 @login_required
 def avaliar_receita(id):
     nota = request.form.get('avaliacoes')
-    comentario = request.form.get('comentario')
+    comentario = request.form.get('comentario', '').strip() or None
 
-    if nota and comentario:
-        nova_avaliacao = AvaliacaoReceita(
-            avaliacoes=int(nota),
-            comentario=comentario,
+    if nota:
+        # Busca se o usuário já avaliou esta receita anteriormente
+        avaliacao_existente = AvaliacaoReceita.query.filter_by(
             receitas_idreceitas=id,
             gastronomos_idgastronomos=current_user.idgastronomos
-        )
-        db.session.add(nova_avaliacao)
+        ).first()
+
+        if avaliacao_existente:
+            # Atualiza a avaliação já feita (em vez de duplicar)
+            avaliacao_existente.avaliacoes = int(nota)
+            avaliacao_existente.comentario = comentario
+        else:
+            # Cria a primeira avaliação do usuário
+            nova_avaliacao = AvaliacaoReceita(
+                avaliacoes=int(nota),
+                comentario=comentario,
+                receitas_idreceitas=id,
+                gastronomos_idgastronomos=current_user.idgastronomos
+            )
+            db.session.add(nova_avaliacao)
+
         db.session.commit()
 
     return redirect(url_for('main.detalhe_receita', id=id))

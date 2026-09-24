@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mangut - Gastronomia Nortista</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="shortcut icon" href="{{ url_for('static', filename='img/favicon.ico') }}" type="image/png">
 </head>
 <body>
 
@@ -17,96 +17,75 @@
         <a href="/" class="logo-link">
             <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
         </a>
-
         <nav class="nav-links">
-            <a href="/">Receitas</a>
-            <a href="#">Categorias</a>
-            <a href="#">Sobre</a>
+            <a href="/receitas">Receitas</a>
+            <a href="/categorias">Categorias</a>
+            <a href="/sobre">Sobre</a>
         </nav>
-
         <div class="nav-actions">
             {% if current_user.is_authenticated %}
-                <!-- Link direto para o perfil -->
-                <a href="/perfil" style="font-weight: 600; color: var(--text-accent); font-size: 0.9rem; text-decoration: none;" title="Ver meu perfil">
+                <a href="/perfil" style="font-weight: 600; color: var(--text-accent); font-size: 0.9rem; text-decoration: none;">
                     👤 {{ current_user.nome }} {% if current_user.is_admin %}(ADM){% endif %}
                 </a>
-                <a href="/receita/nova" class="btn-primary" style="text-decoration: none;">+ Nova Receita</a>
+                <a href="/receita/nova" class="btn-primary">+ Nova Receita</a>
                 <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
             {% else %}
-                <a href="/login" class="btn-primary" style="text-decoration: none;">Entrar</a>
+                <a href="/login" class="btn-primary">Entrar</a>
                 <a href="/cadastro" style="color: var(--text-accent); font-weight: 600; text-decoration: none;">Cadastrar</a>
             {% endif %}
         </div>
     </header>
 
-    <!-- Banner Principal (Hero com proposta Minimalista e Amazônica) -->
+    <!-- Banner Principal (Sem botão redundante) -->
     <section class="hero">
         <h1>Sabores e tradições da Amazônia.</h1>
-        <p>Explore preparos autênticos da culinária nortista, do tucupi ao açaí.</p>
-
-        <!-- 🔍 Form de Pesquisa -->
-        <form action="/" method="GET" class="search-form">
-            <input
-                type="text"
-                name="q"
-                placeholder="Busque por receita ou ingrediente (ex: Tucupi, Jambú, Tacacá)..."
-                value="{{ busca or '' }}"
-                class="search-input">
-            <button type="submit" class="btn-cta search-btn">🔎 Pesquisar</button>
-            {% if busca %}
-                <a href="/" class="btn-clear-search">Limpar busca</a>
-            {% endif %}
-        </form>
+        <p>Descubra receitas tradicionais, modos de preparo artesanais e segredos da culinária do Norte do Brasil.</p>
+        <div>
+            <a href="/receitas" class="btn-cta">Explorar Receitas</a>
+        </div>
     </section>
 
-    <!-- Grid de Receitas -->
-    <main class="container" id="receitas">
-        <h2>
-            {% if busca %}
-                Resultados para "{{ busca }}" ({{ receitas|length }})
-            {% else %}
-                Pratos em Destaque
-            {% endif %}
-        </h2>
+    <!-- Pratos em Destaque com Grid Consistente -->
+    <main class="container">
+        <div class="section-header">
+            <h2>Pratos em Destaque</h2>
+            <a href="/receitas" class="see-all-link">Ver catálogo completo →</a>
+        </div>
 
-        {% if receitas %}
         <div class="recipe-grid">
             {% for receita in receitas %}
-            <div class="recipe-card">
-                <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
+            <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="recipe-card-link">
+                {% if receita.imagem_url %}
+                    <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
+                {% endif %}
                 <div class="card-content">
                     <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem;">
-                            <div class="card-tag" style="margin-bottom: 0;">{{ receita.categoria }}</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                            <span class="card-tag">{{ receita.categoria }}</span>
                             <div class="rating-badge">
                                 {% if receita.qtd_avaliacoes > 0 %}
                                     <span style="color: #ffb703; font-weight: 700;">★ {{ receita.media_estrelas }}</span>
                                     <span style="color: var(--text-secondary); font-size: 0.8rem;">({{ receita.qtd_avaliacoes }})</span>
                                 {% else %}
-                                    <span style="color: var(--text-secondary); font-size: 0.8rem;">Sem notas</span>
+                                    <span style="color: var(--text-secondary); font-size: 0.8rem;">Novo</span>
                                 {% endif %}
                             </div>
                         </div>
                         <h3>{{ receita.nome }}</h3>
                         <p>{{ receita.descricao }}</p>
                     </div>
-                    <a href="/receita/{{ receita.id }}" class="card-link">Ver receita →</a>
+                    <span class="card-footer-action">Ver preparo completo →</span>
                 </div>
-            </div>
+            </a>
             {% endfor %}
         </div>
-        {% else %}
-            <p class="no-reviews">Nenhuma receita encontrada para "{{ busca }}". Tente buscar por outros ingredientes!</p>
-        {% endif %}
     </main>
 
     <footer>
-        <p>&copy; 2026 Mangut. Culinária e cultura do Norte.</p>
+        <p>&copy; 2026 Mangut. Culinária e tradição do Norte.</p>
     </footer>
 
-    <!-- 🌙 Botão Flutuante de Alternar Tema (Canto Inferior Direito) -->
     <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
-
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
