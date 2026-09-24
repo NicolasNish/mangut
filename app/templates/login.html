@@ -22,6 +22,16 @@
             <h1>🔑 Entrar no Mangut</h1>
             <p class="form-subtext">Acesse sua conta para gerenciar suas receitas e avaliações.</p>
 
+            {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div style="background-color: #fee2e2; border: 1px solid #ef4444; color: #b91c1c; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 1.2rem; font-size: 0.9rem;">
+        {{ message }}
+      </div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
             <form action="/login" method="POST" class="recipe-form">
                 <!-- Preserva a página de retorno -->
                 {% if next %}

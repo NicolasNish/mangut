@@ -139,20 +139,20 @@ def login():
     next_page = request.args.get('next') or request.form.get('next')
 
     if request.method == 'POST':
-        email = request.form.get('email')
-        senha = request.form.get('senha')
+        email = request.form.get('email', '').strip()
+        senha = request.form.get('senha', '')
 
         usuario = Gastronomo.query.filter_by(email=email).first()
 
         if usuario and check_password_hash(usuario.senha, senha):
             login_user(usuario)
-
             if next_page:
                 return redirect(next_page)
             return redirect(url_for('main.index'))
+        else:
+            flash('E-mail ou senha incorretos. Verifique suas credenciais.', 'danger')
 
     return render_template('login.html', next=next_page)
-
 
 # 🔐 Autenticação: Logout
 @main.route('/logout')
