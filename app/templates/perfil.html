@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Meu Perfil - Mangut</title>
-    <!-- Favicon -->
     <link rel="shortcut icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -19,9 +18,12 @@
             <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
         </a>
         <nav class="nav-links">
-            <a href="/">← Voltar às Receitas</a>
+            <a href="/receitas">Receitas</a>
+            <a href="/categorias">Categorias</a>
+            <a href="/sobre">Sobre</a>
         </nav>
         <div class="nav-actions">
+            <a href="/receita/nova" class="btn-primary">+ Nova Receita</a>
             <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
         </div>
     </header>
@@ -33,7 +35,7 @@
                 <span>{{ usuario.nome[0] | upper }}</span>
             </div>
 
-            <div class="profile-details" style="flex-grow: 1;">
+            <div class="profile-details">
                 <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem;">
                     <div>
                         <div style="display: flex; align-items: center; gap: 0.8rem;">
@@ -48,18 +50,81 @@
                         <p class="profile-phone">📞 {{ usuario.telefone or 'Nenhum telefone cadastrado' }}</p>
                     </div>
 
-                    <!-- Botão de abrir modal para Editar Perfil -->
-                    <div style="display: flex; gap: 0.5rem;">
-                        <button onclick="document.getElementById('edit-profile-modal').style.display='flex'" class="btn-primary" style="font-size: 0.85rem; padding: 0.5rem 0.9rem;">✏️ Editar Dados</button>
-                    </div>
+                    <button onclick="document.getElementById('edit-profile-modal').style.display='flex'" class="btn-primary" style="font-size: 0.85rem; padding: 0.5rem 1rem;">
+                        ✏️ Editar Dados
+                    </button>
                 </div>
             </div>
+        </section>
+
+        <!-- Seção: Minhas Receitas Publicadas -->
+        <section class="profile-section">
+            <h2>📖 Minhas Receitas ({{ receitas|length }})</h2>
+            {% if receitas %}
+                <div class="recipe-grid">
+                    {% for receita in receitas %}
+                    <div style="display: flex; flex-direction: column; background: var(--bg-card); border-radius: 14px; border: 1px solid var(--border-color); box-shadow: 0 4px 12px var(--card-shadow); overflow: hidden;">
+                        {% if receita.imagem_url %}
+                            <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
+                        {% endif %}
+                        <div class="card-content" style="flex: 1; display: flex; flex-direction: column; justify-content: space-between; padding: 1.3rem;">
+                            <div>
+                                <span class="card-tag">{{ receita.categoria }}</span>
+                                <h3 style="margin: 0.8rem 0 0.4rem 0; font-size: 1.25rem;">{{ receita.nome }}</h3>
+                                <p style="color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">{{ receita.descricao }}</p>
+                            </div>
+
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.2rem; pt-top: 0.8rem; border-top: 1px solid var(--border-color); padding-top: 0.8rem;">
+                                <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" style="color: var(--text-accent); font-weight: 700; text-decoration: none; font-size: 0.9rem;">Ver receita →</a>
+                                <a href="{{ url_for('main.formulario_editar_receita', id=receita.id) }}" style="color: var(--text-secondary); font-size: 0.85rem; text-decoration: none;">✏️ Editar</a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="background: var(--bg-card); padding: 2rem; border-radius: 10px; border: 1px dashed var(--border-color); text-align: center;">
+                    <p style="color: var(--text-secondary);">Você ainda não publicou nenhuma receita.</p>
+                    <a href="/receita/nova" class="btn-primary" style="margin-top: 1rem;">Publicar a primeira receita</a>
+                </div>
+            {% endif %}
+        </section>
+
+        <!-- Seção: Minhas Avaliações Enviadas -->
+        <section class="profile-section">
+            <h2>⭐ Minhas Avaliações ({{ avaliacoes|length }})</h2>
+            {% if avaliacoes %}
+                <div>
+                    {% for av in avaliacoes %}
+                    <div class="review-card-item">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
+                            <a href="{{ url_for('main.detalhe_receita', id=av.receita_id) }}" style="text-decoration: none; font-weight: 700; color: var(--text-accent); font-size: 1.05rem;">
+                                🍲 {{ av.receita_nome }}
+                            </a>
+                            <div style="color: #ffb703; font-size: 1.1rem;">
+                                {% for i in range(av.nota) %}★{% endfor %}
+                            </div>
+                        </div>
+
+                        {% if av.comentario and av.comentario != 'None' %}
+                            <p style="color: var(--text-secondary); font-style: italic; margin-top: 0.3rem;">"{{ av.comentario }}"</p>
+                        {% else %}
+                            <p style="color: var(--text-secondary); font-size: 0.85rem; font-style: italic; margin-top: 0.3rem;">(Avaliação realizada apenas por nota)</p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div style="background: var(--bg-card); padding: 2rem; border-radius: 10px; border: 1px dashed var(--border-color); text-align: center;">
+                    <p style="color: var(--text-secondary);">Você ainda não avaliou nenhuma receita do site.</p>
+                </div>
+            {% endif %}
         </section>
 
         <!-- Modal de Edição do Perfil -->
         <div id="edit-profile-modal" class="modal-overlay" style="display: none;">
             <div class="modal-box" style="text-align: left; max-width: 480px;">
-                <h3 style="margin-bottom: 1rem;">✏️ Editar Dados Pessoais</h3>
+                <h3 style="margin-bottom: 1rem; color: var(--text-accent);">✏️ Editar Dados Pessoais</h3>
 
                 <form action="/perfil/editar" method="POST" class="recipe-form">
                     <div class="form-group">
@@ -72,85 +137,32 @@
                         <input type="text" id="telefone" name="telefone" value="{{ usuario.telefone or '' }}" placeholder="(91) 99999-9999">
                     </div>
 
-                    <div style="display: flex; gap: 0.8rem; margin-top: 1rem;">
+                    <div style="display: flex; gap: 0.8rem; margin-top: 0.5rem;">
                         <button type="submit" class="btn-primary" style="flex: 1;">Salvar Alterações</button>
-                        <button type="button" onclick="document.getElementById('edit-profile-modal').style.display='none'" class="btn-secondary-modal" style="flex: 1;">Cancelar</button>
+                        <button type="button" onclick="document.getElementById('edit-profile-modal').style.display='none'" class="btn-primary" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); flex: 1;">Cancelar</button>
                     </div>
                 </form>
 
                 <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid var(--border-color);">
 
-                <!-- Excluir Conta -->
+                <!-- Zona de Perigo: Excluir Conta -->
                 <div>
+                    <h4 style="color: #d90429; font-size: 0.95rem; margin-bottom: 0.4rem;">⚠️ Zona de Perigo</h4>
+                    <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 0.8rem;">Esta ação excluirá permanentemente sua conta, todas as suas receitas e avaliações.</p>
 
-                    <form action="/perfil/excluir-conta" method="POST" onsubmit="return confirm('ATENÇÃO: Tem certeza que deseja apagar sua conta? Esta ação NÃO pode ser desfeita e apagará todas as suas receitas.');">
+                    <form action="/perfil/excluir-conta" method="POST" onsubmit="return confirm('ATENÇÃO: Tem certeza que deseja apagar sua conta? Esta ação NÃO pode ser desfeita.');">
                         <button type="submit" class="btn-primary" style="background-color: #d90429; width: 100%; font-size: 0.85rem;">🗑️ Excluir Minha Conta</button>
                     </form>
                 </div>
             </div>
         </div>
-
-        <!-- Seção: Minhas Receitas Publicadas -->
-        <section class="profile-section">
-            <h2>📖 Minhas Receitas ({{ receitas|length }})</h2>
-            {% if receitas %}
-                <div class="recipe-grid">
-                    {% for receita in receitas %}
-                    <div class="recipe-card">
-                        {% if receita.imagem_url %}
-                            <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
-                        {% endif %}
-                        <div class="card-content">
-                            <div class="card-tag">{{ receita.categoria }}</div>
-                            <h3>{{ receita.nome }}</h3>
-                            <p>{{ receita.descricao }}</p>
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
-                                <a href="/receita/{{ receita.id }}" class="card-link">Ver receita →</a>
-                                <a href="/receita/{{ receita.id }}/editar" style="color: var(--text-secondary); font-size: 0.85rem; text-decoration: none;">✏️ Editar</a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="no-data-text">Você ainda não publicou nenhuma receita. <a href="/receita/nova" style="color: var(--text-accent); font-weight: 600;">Clique aqui para publicar a primeira!</a></p>
-            {% endif %}
-        </section>
-
-        <hr class="divider">
-
-        <!-- Seção: Minhas Avaliações Enviadas -->
-        <section class="profile-section">
-            <h2>⭐ Minhas Avaliações ({{ avaliacoes|length }})</h2>
-            {% if avaliacoes %}
-                <div class="reviews-list">
-                    {% for av in avaliacoes %}
-                    <div class="review-card">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.4rem;">
-                            <a href="/receita/{{ av.receita_id }}" style="text-decoration: none; font-weight: 700; color: var(--text-accent);">
-                                🍲 {{ av.receita_nome }}
-                            </a>
-                            <div class="review-stars">
-                                {% for i in range(av.nota) %}⭐{% endfor %}
-                            </div>
-                        </div>
-                        <p class="review-comment">"{{ av.comentario }}"</p>
-                    </div>
-                    {% endfor %}
-                </div>
-            {% else %}
-                <p class="no-data-text">Você ainda não avaliou nenhuma receita do site.</p>
-            {% endif %}
-        </section>
     </main>
 
     <footer>
-        <p>&copy; 2026 Mangut. Culinária e cultura do Norte.</p>
+        <p>&copy; 2026 Mangut. Culinária e tradição do Norte.</p>
     </footer>
 
-    <!-- Botão Flutuante de Alternar Tema -->
     <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
-
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

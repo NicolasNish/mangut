@@ -794,3 +794,71 @@ footer {
 .recipe-card-link:not(:has(.card-img)) .card-content {
     padding-top: 1.8rem;
 }
+
+/* ========================================================
+   👤 TELA DE PERFIL DO USUÁRIO
+   ======================================================== */
+.profile-header-card {
+    background: var(--bg-card);
+    padding: 2rem;
+    border-radius: 14px;
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 14px var(--card-shadow);
+    display: flex;
+    align-items: center;
+    gap: 1.8rem;
+    margin-bottom: 2.5rem;
+}
+
+.profile-avatar {
+    width: 80px;
+    height: 80px;
+    min-width: 80px;
+    border-radius: 50%;
+    background-color: var(--tag-bg);
+    color: var(--tag-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    font-weight: 700;
+    border: 2px solid var(--text-accent);
+}
+
+.profile-details {
+    flex-grow: 1;
+}
+
+.profile-details h1 {
+    font-size: 1.8rem;
+    color: var(--text-primary);
+    margin: 0;
+}
+
+.profile-email, .profile-phone {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-top: 0.3rem;
+}
+
+.profile-section {
+    margin-bottom: 3rem;
+}
+
+.profile-section h2 {
+    font-size: 1.4rem;
+    color: var(--text-accent);
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+    padding-bottom: 0.5rem;
+}
+
+/* Card das Minhas Avaliações */
+.review-card-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 2px 8px var(--card-shadow);
+}
