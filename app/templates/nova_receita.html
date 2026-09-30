@@ -9,6 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Biblioteca de Corte de Imagem (Cropper.js) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 </head>
 <body>
     <header class="navbar">
@@ -16,7 +20,7 @@
             <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
         </a>
         <nav class="nav-links">
-            <a href="/">← Cancelar e Voltar</a>
+            <a href="/receitas">← Voltar às Receitas</a>
         </nav>
         <div class="nav-actions">
             {% if current_user.is_authenticated %}
@@ -27,8 +31,8 @@
 
     <main class="container">
         <section class="form-section">
-            <h1>➕ Cadastrar Nova Receita</h1>
-            <p style="color: var(--text-secondary); margin-bottom: 2rem;">Compartilhe seu preparo com os gastrônomos da comunidade Mangut.</p>
+            <h1>Cadastrar Nova Receita</h1>
+            <p class="form-subtext">Compartilhe seu preparo com os gastrônomos da comunidade Mangut.</p>
 
             <form action="/receita/nova" method="POST" enctype="multipart/form-data" class="recipe-form">
                 <div class="form-group">
@@ -46,45 +50,139 @@
                     </select>
                 </div>
 
-                <!-- Apenas foto do computador -->
+                <!-- Campo de Upload + Recorte -->
                 <div class="form-group">
-                    <label for="imagem_arquivo">📸 Foto do Prato (Arquivo do seu computador):</label>
-                    <input type="file" id="imagem_arquivo" name="imagem_arquivo" accept="image/*">
-                    <span class="input-hint">Formatos suportados: JPG, PNG, WEBP.</span>
+                    <label for="input-foto">Foto do Prato:</label>
+                    <input type="file" id="input-foto" name="imagem_arquivo" accept="image/*">
+                    <span class="input-hint">Ao selecionar uma foto, você poderá recortá-la no tamanho ideal.</span>
+
+                    <!-- Campo invisível que recebe a imagem cortada -->
+                    <input type="hidden" name="imagem_cortada" id="imagem_cortada">
+
+                    <!-- Prévia da imagem cortada -->
+                    <div id="preview-container" style="display: none; margin-top: 1rem; width: 100%;">
+                        <p style="font-size: 0.85rem; color: var(--text-accent); font-weight: 600; margin-bottom: 0.4rem;">Prévia da foto recortada:</p>
+                        <img id="preview-img" style="width: 100%; max-height: 240px; object-fit: cover; border-radius: 8px; border: 2px solid var(--text-accent);">
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="descricao">Breve Apresentação do Prato:</label>
-                    <textarea id="descricao" name="descricao" rows="2" placeholder="Resumo, origem do prato ou ocasião em que é servido..." required></textarea>
+                    <textarea id="descricao" name="descricao" rows="3" placeholder="Resumo do prato, contexto ou ocasião..." required></textarea>
                 </div>
 
-                <!-- Ingredientes Estruturados: 1 por linha com quantidade -->
                 <div class="form-group">
                     <label for="lista_ingredientes">Ingredientes e Quantidades (Digite um por linha):</label>
                     <textarea
                         id="lista_ingredientes"
                         name="lista_ingredientes"
                         rows="6"
-                        placeholder="Ex:&#10;1 kg de filhote em postas&#10;2 xícaras de leite de castanha-do-Pará&#10;1 maço de jambu aferventado&#10;3 dentes de alho picados&#10;Sal e pimenta-de-cheiro a gosto"
+                        placeholder="1 kg de filhote em postas&#10;2 xícaras de leite de castanha&#10;1 maço de jambu fervido&#10;Sal e pimenta a gosto"
                         required></textarea>
-                    <span class="input-hint">Dica: aperte Enter para cada ingrediente com sua respectiva medida.</span>
+                    <span class="input-hint">Pressione Enter para cada ingrediente com sua respectiva medida.</span>
                 </div>
 
                 <div class="form-group">
                     <label for="modo_preparo">Modo de Preparo:</label>
-                    <textarea id="modo_preparo" name="modo_preparo" rows="6" placeholder="Descreva o passo a passo com clareza..." required></textarea>
+                    <textarea id="modo_preparo" name="modo_preparo" rows="7" placeholder="Descreva o passo a passo com detalhes..." required></textarea>
                 </div>
 
-                <button type="submit" class="btn-primary" style="padding: 0.9rem; font-size: 1rem; justify-content: center; width: 100%;">Publicar Receita</button>
+                <button type="submit" class="btn-primary btn-submit">Publicar Receita</button>
             </form>
         </section>
+
+        <!-- Modal de Recorte -->
+        <div id="modal-crop" class="modal-overlay" style="display: none;">
+            <div class="modal-box" style="max-width: 650px; width: 95%;">
+                <h3 style="color: var(--text-accent); margin-bottom: 0.8rem;">Ajuste e Enquadramento da Foto</h3>
+                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 1rem;">Arraste e redimensione para destacar o prato (formato panorâmico).</p>
+
+                <div style="max-height: 380px; overflow: hidden; background: #000; border-radius: 8px;">
+                    <img id="image-to-crop" style="max-width: 100%; display: block;">
+                </div>
+
+                <div style="display: flex; gap: 0.8rem; justify-content: flex-end; margin-top: 1.2rem;">
+                    <button type="button" onclick="cancelarCrop()" class="btn-logout" style="border: 1px solid var(--border-color); color: var(--text-secondary);">Cancelar</button>
+                    <button type="button" id="btn-confirm-crop" class="btn-primary">Confirmar Recorte</button>
+                </div>
+            </div>
+        </div>
     </main>
 
     <footer>
         <p>&copy; 2026 Mangut. Culinária e tradição do Norte.</p>
     </footer>
 
-    <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <script>
+        let cropper = null;
+        const inputFoto = document.getElementById('input-foto');
+        const modalCrop = document.getElementById('modal-crop');
+        const imageToCrop = document.getElementById('image-to-crop');
+        const hiddenInput = document.getElementById('imagem_cortada');
+        const previewContainer = document.getElementById('preview-container');
+        const previewImg = document.getElementById('preview-img');
+
+        // Quando o usuário escolhe um arquivo do computador
+        inputFoto.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files && files.length > 0) {
+                const file = files[0];
+                const reader = new FileReader();
+
+                reader.onload = function(event) {
+                    imageToCrop.src = event.target.result;
+                    modalCrop.style.display = 'flex';
+
+                    // Inicializa o cortador com proporção 16:9 (paisagem de comida)
+                    if (cropper) {
+                        cropper.destroy();
+                    }
+                    cropper = new Cropper(imageToCrop, {
+                        aspectRatio: 16 / 9,
+                        viewMode: 1,
+                        autoCropArea: 0.9,
+                        responsive: true
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Quando clica em Confirmar Recorte
+        document.getElementById('btn-confirm-crop').addEventListener('click', function() {
+            if (!cropper) return;
+
+            // Gera o canvas da imagem cortada em boa resolução
+            const canvas = cropper.getCroppedCanvas({
+                width: 960,
+                height: 540
+            });
+
+            // Converte para string Base64 e guarda no input oculto
+            const croppedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+            hiddenInput.value = croppedBase64;
+
+            // Mostra a prévia na tela
+            previewImg.src = croppedBase64;
+            previewContainer.style.display = 'block';
+
+            // Fecha o modal
+            modalCrop.style.display = 'none';
+            cropper.destroy();
+            cropper = null;
+        });
+
+        function cancelarCrop() {
+            modalCrop.style.display = 'none';
+            if (cropper) {
+                cropper.destroy();
+                cropper = null;
+            }
+            // Se cancelou e não havia corte prévio, limpa o input
+            if (!hiddenInput.value) {
+                inputFoto.value = '';
+            }
+        }
+    </script>
 </body>
 </html>

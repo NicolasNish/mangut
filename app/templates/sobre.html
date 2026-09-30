@@ -22,9 +22,19 @@
         </nav>
         <div class="nav-actions">
             {% if current_user.is_authenticated %}
-                <a href="/logout" class="btn-logout">🚪 Sair</a>
+                <a href="/perfil" class="navbar-user-link" title="Ver meu perfil">
+                    {% if current_user.foto_perfil %}
+                        <img src="{{ current_user.foto_perfil }}" alt="{{ current_user.nome }}" class="navbar-avatar-thumb">
+                    {% else %}
+                        <span class="navbar-avatar-placeholder">{{ current_user.nome[0] | upper }}</span>
+                    {% endif %}
+                    <span>{{ current_user.nome }} {% if current_user.is_admin %}(ADM){% endif %}</span>
+                </a>
+                <a href="/receita/nova" class="btn-primary">+ Nova Receita</a>
+                <a href="/logout" class="btn-logout" title="Sair do sistema">🚪 Sair</a>
             {% else %}
                 <a href="/login" class="btn-primary">Entrar</a>
+                <a href="/cadastro" style="color: var(--text-accent); font-weight: 600; text-decoration: none;">Cadastrar</a>
             {% endif %}
         </div>
     </header>

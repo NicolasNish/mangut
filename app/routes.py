@@ -5,22 +5,40 @@ from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from app import db
-from app.models import Receita, AvaliacaoReceita, Categoria, Gastronomo
+from app.models import Receita, AvaliacaoReceita, Categoria, Gastronomo, PastaReceitas
 
 main = Blueprint('main', __name__)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
-def salvar_imagem(file):
-    """Valida e salva a imagem do computador no diretório static/uploads."""
-    if file and file.filename != '':
-        extensao = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
-        if extensao in ALLOWED_EXTENSIONS:
-            nome_arquivo = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
-            caminho_completo = os.path.join(current_app.config['UPLOAD_FOLDER'], nome_arquivo)
-            file.save(caminho_completo)
-            return f"/static/uploads/{nome_arquivo}"
-    return None
+import base64
+from io import BytesIO
+from PIL import Image
+
+
+def salvar_imagem_cortada(dados_base64, prefixo="receita"):
+    """Decodifica a imagem cortada pelo navegador e salva como arquivo JPG/PNG no disco."""
+    if not dados_base64 or not dados_base64.startswith('data:image'):
+        return None
+    try:
+        cabecalho, base64_str = dados_base64.split(',', 1)
+        extensao = 'png' if 'png' in cabecalho else 'jpg'
+
+        nome_arquivo = f"{prefixo}_{uuid.uuid4().hex}.{extensao}"
+        caminho_completo = os.path.join(current_app.config['UPLOAD_FOLDER'], nome_arquivo)
+
+        imagem_bytes = base64.b64decode(base64_str)
+        imagem = Image.open(BytesIO(imagem_bytes))
+
+        # Converte para RGB se for salvar em JPEG
+        if extensao == 'jpg' and imagem.mode in ("RGBA", "P"):
+            imagem = imagem.convert("RGB")
+
+        imagem.save(caminho_completo)
+        return f"/static/uploads/{nome_arquivo}"
+    except Exception as e:
+        print(f"Erro ao salvar imagem cortada: {e}")
+        return None
 
 
 def formatar_receitas(query_obj):
@@ -186,20 +204,33 @@ def perfil():
     )
 
 
-# ✏️ Rota POST: Editar Perfil
+# Rota POST: Editar dados do Perfil (Nome, Telefone e Foto de Perfil)
 @main.route('/perfil/editar', methods=['POST'])
 @login_required
 def editar_perfil():
     novo_nome = request.form.get('nome')
     novo_telefone = request.form.get('telefone')
 
+    # 1. Pega a foto cortada vinda do Cropper.js (Base64)
+    foto_base64 = request.form.get('foto_perfil_cortada')
+    nova_foto = salvar_imagem_cortada(foto_base64, prefixo="perfil")
+
+    # 2. Fallback: caso tenha enviado o arquivo direto sem corte
+    if not nova_foto:
+        file_foto = request.files.get('foto_perfil_arquivo')
+        nova_foto = salvar_imagem(file_foto)
+
     if novo_nome:
         current_user.nome = novo_nome
         current_user.telefone = novo_telefone
+
+        # Atualiza a foto se uma nova tiver sido enviada
+        if nova_foto:
+            current_user.foto_perfil = nova_foto
+
         db.session.commit()
 
     return redirect(url_for('main.perfil'))
-
 
 # 🗑️ Rota POST: Excluir Conta
 @main.route('/perfil/excluir-conta', methods=['POST'])
@@ -232,8 +263,14 @@ def formulario_nova_receita():
         lista_ingredientes = request.form.get('lista_ingredientes')
         modo_preparo = request.form.get('modo_preparo')
 
-        file_imagem = request.files.get('imagem_arquivo')
-        imagem_url = salvar_imagem(file_imagem)
+        # 1. Pega a imagem já recortada pelo navegador (Base64)
+        imagem_base64 = request.form.get('imagem_cortada')
+        imagem_url = salvar_imagem_cortada(imagem_base64, prefixo="receita")
+
+        # 2. Fallback: caso o usuário tenha enviado o arquivo normal sem cortar
+        if not imagem_url:
+            file_imagem = request.files.get('imagem_arquivo')
+            imagem_url = salvar_imagem(file_imagem)
 
         if nome and categoria_id and lista_ingredientes and modo_preparo:
             nova_receita = Receita(
@@ -251,7 +288,6 @@ def formulario_nova_receita():
 
     categorias = Categoria.query.all()
     return render_template('nova_receita.html', categorias=categorias)
-
 
 # 📖 Detalhe da Receita
 @main.route('/receita/<int:id>')
@@ -284,6 +320,12 @@ def detalhe_receita(id):
                 "comentario": minha_avaliacao_obj.comentario
             }
 
+    minhas_pastas = []
+    ids_pastas_salvas = []
+    if current_user.is_authenticated:
+        minhas_pastas = PastaReceitas.query.filter_by(gastronomo_id=current_user.idgastronomos).all()
+        ids_pastas_salvas = [p.id for p in minhas_pastas if receita in p.receitas_salvas]
+
     avaliacoes_formatadas = []
     for av in avaliacoes_db:
         nome_autor = av.usuario.nome if av.usuario else "Gastrônomo Anônimo"
@@ -315,7 +357,9 @@ def detalhe_receita(id):
         receita=dados_receita,
         ingredientes=ingredientes,
         avaliacoes=avaliacoes_formatadas,
-        minha_avaliacao=minha_avaliacao
+        minha_avaliacao=minha_avaliacao,
+        minhas_pastas=minhas_pastas,
+        ids_pastas_salvas=ids_pastas_salvas
     )
 
 # 🗑️ Excluir Avaliação
@@ -418,3 +462,81 @@ def avaliar_receita(id):
         db.session.commit()
 
     return redirect(url_for('main.detalhe_receita', id=id))
+
+# 📸 Rota POST: Atualizar apenas a foto de perfil cortada
+@main.route('/perfil/foto', methods=['POST'])
+@login_required
+def atualizar_foto_perfil():
+    foto_base64 = request.form.get('foto_perfil_cortada')
+    if foto_base64:
+        nova_foto = salvar_imagem_cortada(foto_base64, prefixo="perfil")
+        if nova_foto:
+            current_user.foto_perfil = nova_foto
+            db.session.commit()
+            flash('Foto de perfil atualizada com sucesso!', 'success')
+    return redirect(url_for('main.perfil'))
+
+# 📂 Listar todas as Pastas do Usuário
+@main.route('/pastas')
+@login_required
+def listar_pastas():
+    minhas_pastas = PastaReceitas.query.filter_by(gastronomo_id=current_user.idgastronomos).order_by(PastaReceitas.data_criacao.desc()).all()
+    return render_template('pastas.html', pastas=minhas_pastas)
+
+
+# ➕ Criar Nova Pasta
+@main.route('/pastas/nova', methods=['POST'])
+@login_required
+def criar_pasta():
+    nome = request.form.get('nome', '').strip()
+    descricao = request.form.get('descricao', '').strip()
+
+    if nome:
+        nova_pasta = PastaReceitas(
+            nome=nome,
+            descricao=descricao,
+            gastronomo_id=current_user.idgastronomos
+        )
+        db.session.add(nova_pasta)
+        db.session.commit()
+        flash(f'Pasta "{nome}" criada com sucesso!', 'success')
+    return redirect(url_for('main.listar_pastas'))
+
+
+# 📖 Ver Receitas dentro de uma Pasta Específica
+@main.route('/pastas/<int:id>')
+@login_required
+def ver_pasta(id):
+    pasta = PastaReceitas.query.filter_by(id=id, gastronomo_id=current_user.idgastronomos).first_or_404()
+    receitas_formatadas = formatar_receitas(Receita.query.filter(Receita.idreceitas.in_([r.idreceitas for r in pasta.receitas_salvas]))) if pasta.receitas_salvas else []
+    return render_template('detalhe_pasta.html', pasta=pasta, receitas=receitas_formatadas)
+
+
+# 🗑️ Excluir Pasta
+@main.route('/pastas/<int:id>/excluir', methods=['POST'])
+@login_required
+def excluir_pasta(id):
+    pasta = PastaReceitas.query.filter_by(id=id, gastronomo_id=current_user.idgastronomos).first_or_404()
+    db.session.delete(pasta)
+    db.session.commit()
+    flash(f'Pasta "{pasta.nome}" excluída.', 'info')
+    return redirect(url_for('main.listar_pastas'))
+
+
+# 📌 Salvar ou Remover Receita de uma Pasta (chamado a partir da página da receita ou da pasta)
+@main.route('/receita/<int:receita_id>/salvar-pasta', methods=['POST'])
+@login_required
+def alternar_salvar_pasta(receita_id):
+    pasta_id = request.form.get('pasta_id', type=int)
+    pasta = PastaReceitas.query.filter_by(id=pasta_id, gastronomo_id=current_user.idgastronomos).first_or_404()
+    receita = Receita.query.get_or_404(receita_id)
+
+    if receita in pasta.receitas_salvas:
+        pasta.receitas_salvas.remove(receita)
+        flash(f'Receita removida da pasta "{pasta.nome}".', 'info')
+    else:
+        pasta.receitas_salvas.append(receita)
+        flash(f'Receita guardada na pasta "{pasta.nome}"!', 'success')
+
+    db.session.commit()
+    return redirect(request.referrer or url_for('main.detalhe_receita', id=receita_id))

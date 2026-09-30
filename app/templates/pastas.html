@@ -1,10 +1,115 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Pastas de Receitas - Mangut</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-$END$
+    <header class="navbar">
+        <a href="/" class="logo-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
+        </a>
+        <nav class="nav-links">
+            <a href="/receitas">Receitas</a>
+            <a href="/categorias">Categorias</a>
+            <a href="/pastas" class="active">Minhas Pastas</a>
+            <a href="/sobre">Sobre</a>
+        </nav>
+        <div class="nav-actions">
+            {% if current_user.is_authenticated %}
+                <a href="/perfil" class="navbar-user-link">
+                    {% if current_user.foto_perfil %}
+                        <img src="{{ current_user.foto_perfil }}" alt="{{ current_user.nome }}" class="navbar-avatar-thumb">
+                    {% else %}
+                        <span class="navbar-avatar-placeholder">{{ current_user.nome[0] | upper }}</span>
+                    {% endif %}
+                    <span>{{ current_user.nome }}</span>
+                </a>
+                <a href="/logout" class="btn-logout">🚪 Sair</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="section-header">
+            <div>
+                <h2>📁 Meus Livros & Pastas de Receitas</h2>
+                <p style="color: var(--text-secondary); margin-top: 0.3rem;">Organize suas receitas salvas e favoritas em listas temáticas personalizadas.</p>
+            </div>
+            <button onclick="document.getElementById('modal-nova-pasta').style.display='flex'" class="btn-primary">
+                + Nova Pasta
+            </button>
+        </div>
+
+        {% if pastas %}
+            <div class="folder-grid">
+                {% for pasta in pastas %}
+                <div class="folder-card">
+                    <div>
+                        <div class="folder-icon">📂</div>
+                        <h3 class="folder-title">{{ pasta.nome }}</h3>
+                        <p class="folder-desc">{{ pasta.descricao or 'Coleção de receitas personalizadas.' }}</p>
+                    </div>
+
+                    <div>
+                        <div class="folder-footer">
+                            <span>🍲 {{ pasta.receitas_salvas|length }} {% if pasta.receitas_salvas|length == 1 %}receita{% else %}receitas{% endif %}</span>
+                            <a href="{{ url_for('main.ver_pasta', id=pasta.id) }}" style="color: var(--text-accent); text-decoration: none; font-weight: 700;">Abrir Pasta →</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div style="background: var(--bg-card); padding: 3rem; text-align: center; border-radius: 12px; border: 1px dashed var(--border-color); margin-top: 2rem;">
+                <div style="font-size: 3rem; margin-bottom: 0.8rem;">📁</div>
+                <h3>Você ainda não tem nenhuma pasta criada.</h3>
+                <p style="color: var(--text-secondary); max-width: 450px; margin: 0.5rem auto 1.5rem auto;">
+                    Crie sua primeira pasta (ex: "Receitas de Domingo", "Peixes Amazônicos", "Doces") e salve suas receitas favoritas!
+                </p>
+                <button onclick="document.getElementById('modal-nova-pasta').style.display='flex'" class="btn-primary">
+                    Criar Minha Primeira Pasta
+                </button>
+            </div>
+        {% endif %}
+
+        <!-- Modal: Criar Nova Pasta -->
+        <div id="modal-nova-pasta" class="modal-overlay" style="display: none;">
+            <div class="modal-box" style="text-align: left; max-width: 440px;">
+                <h3 style="color: var(--text-accent); margin-bottom: 0.5rem;">📁 Nova Pasta de Receitas</h3>
+                <p style="color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 1.2rem;">Dê um nome para sua coleção (ex: Pratos Típicos, Sobremesas, Favoritas).</p>
+
+                <form action="/pastas/nova" method="POST" class="recipe-form">
+                    <div class="form-group">
+                        <label for="nome_pasta">Nome da Pasta:</label>
+                        <input type="text" id="nome_pasta" name="nome" placeholder="Ex: Almoço de Domingo" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="desc_pasta">Descrição (opcional):</label>
+                        <input type="text" id="desc_pasta" name="descricao" placeholder="Ex: As melhores receitas para reunir a família">
+                    </div>
+
+                    <div style="display: flex; gap: 0.8rem; margin-top: 0.8rem;">
+                        <button type="submit" class="btn-primary" style="flex: 1;">Criar Pasta</button>
+                        <button type="button" onclick="document.getElementById('modal-nova-pasta').style.display='none'" class="btn-primary" style="background: transparent; border: 1px solid var(--border-color); color: var(--text-secondary); flex: 1;">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mangut. Culinária e tradição do Norte.</p>
+    </footer>
+
+    <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>
