@@ -46,48 +46,50 @@
 
     <!-- Banner Principal (Sem botão redundante) -->
     <section class="hero">
-        <h1>Sabores e tradições da Amazônia.</h1>
-        <p>Descubra receitas tradicionais, modos de preparo artesanais e segredos da culinária do Norte do Brasil.</p>
+        <h1>Mangut: Livro de receitas da Amazônia.</h1>
+        <p>Descubra os segredos da Culinária Amazônica</p>
         <div>
             <a href="/receitas" class="btn-cta">Explorar Receitas</a>
         </div>
     </section>
 
     <!-- Pratos em Destaque com Grid Consistente -->
-    <main class="container">
-        <div class="section-header">
-            <h2>Pratos em Destaque</h2>
-            <a href="/receitas" class="see-all-link">Ver catálogo completo →</a>
-        </div>
+    <section class="featured-recipes-section">
+        <main class="container">
+            <div class="section-header">
+                <h2>Pratos em Destaque</h2>
+                <a href="/receitas" class="see-all-link">Ver catálogo completo →</a>
+            </div>
 
-        <div class="recipe-grid">
-            {% for receita in receitas %}
-            <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="recipe-card-link">
-                {% if receita.imagem_url %}
-                    <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
-                {% endif %}
-                <div class="card-content">
-                    <div>
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
-                            <span class="card-tag">{{ receita.categoria }}</span>
-                            <div class="rating-badge">
-                                {% if receita.qtd_avaliacoes > 0 %}
-                                    <span style="color: #ffb703; font-weight: 700;">★ {{ receita.media_estrelas }}</span>
-                                    <span style="color: var(--text-secondary); font-size: 0.8rem;">({{ receita.qtd_avaliacoes }})</span>
-                                {% else %}
-                                    <span style="color: var(--text-secondary); font-size: 0.8rem;">Novo</span>
-                                {% endif %}
+            <div class="recipe-grid">
+                {% for receita in receitas %}
+                <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="recipe-card-link">
+                    {% if receita.imagem_url %}
+                        <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
+                    {% endif %}
+                    <div class="card-content">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                                <span class="card-tag">{{ receita.categoria }}</span>
+                                <div class="rating-badge">
+                                    {% if receita.qtd_avaliacoes > 0 %}
+                                        <span style="color: #ffb703; font-weight: 700;">★ {{ receita.media_estrelas }}</span>
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">({{ receita.qtd_avaliacoes }})</span>
+                                    {% else %}
+                                        <span style="color: var(--text-secondary); font-size: 0.8rem;">Novo</span>
+                                    {% endif %}
+                                </div>
                             </div>
+                            <h3>{{ receita.nome }}</h3>
+                            <p>{{ receita.descricao }}</p>
                         </div>
-                        <h3>{{ receita.nome }}</h3>
-                        <p>{{ receita.descricao }}</p>
+                        <span class="card-footer-action">Ver preparo completo →</span>
                     </div>
-                    <span class="card-footer-action">Ver preparo completo →</span>
-                </div>
-            </a>
-            {% endfor %}
-        </div>
-    </main>
+                </a>
+                {% endfor %}
+            </div>
+        </main>
+    </section>
 
     <footer>
         <p>&copy; 2026 Mangut. Culinária e tradição do Norte.</p>

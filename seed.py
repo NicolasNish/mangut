@@ -26,7 +26,7 @@ def popular_banco():
             nome="Administrador Mangut",
             email="admin@mangut.com.br",
             telefone="91988888888",
-            senha=generate_password_hash("amdin123"),
+            senha=generate_password_hash("1234"),
             is_admin=True
         )
 
@@ -70,7 +70,7 @@ def popular_banco():
 
         print("Banco populado com sucesso! Usuários criados:")
         print("👤 Usuário Comum: chef@mangut.com.br | Senha: 123456")
-        print("👑 Administrador: admin@mangut.com.br | Senha: admin123")
+        print("👑 Administrador: admin@mangut.com.br | Senha: 1234")
 
 if __name__ == '__main__':
     popular_banco()

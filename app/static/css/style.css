@@ -10,8 +10,8 @@
     --border-color: #d2ded7;
     --tag-bg: #e1efe6;
     --tag-text: #1e5a3f;
-    --btn-cta: #d90429;
-    --btn-cta-hover: #b80020;
+    --btn-cta: #1e5a3f;
+    --btn-cta-hover: #182822;
     --card-shadow: rgba(24, 40, 34, 0.08);
 }
 
@@ -26,8 +26,8 @@
     --border-color: #274235;
     --tag-bg: #1f3d2f;
     --tag-text: #8ee2b2;
-    --btn-cta: #e63946;
-    --btn-cta-hover: #ff4d5a;
+    --btn-cta: #6fcf97;
+    --btn-cta-hover: #274235;
     --card-shadow: rgba(0, 0, 0, 0.45);
 }
 
@@ -1321,5 +1321,74 @@ img, video, canvas {
 
     .hero h1 {
         font-size: 1.5rem;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+:root {
+    /* Overlay no modo claro: mantém a identidade verde clara e suave */
+    --featured-bg-overlay: rgba(245, 247, 246, 0.88);
+}
+
+[data-theme="dark"] {
+    /* Overlay no modo escuro: escurece a imagem como na referência da imagem */
+    --featured-bg-overlay: rgba(11, 20, 16, 0.88);
+}
+
+/* ========================================================
+   🌿 SEÇÃO DE PRATOS EM DESTAQUE COM FUNDO IMERSIVO
+   ======================================================== */
+.featured-recipes-section {
+    position: relative;
+    width: 100%;
+    padding: 3.5rem 0 4.5rem 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+
+    /* Imagem de fundo com overlay adaptável ao tema */
+    background:
+        linear-gradient(var(--featured-bg-overlay), var(--featured-bg-overlay)),
+        url('../img/fundo-amazonia.jpg') center/cover no-repeat fixed;
+}
+
+/* Garante espaçamento limpo do container interno */
+.featured-recipes-section .container {
+    margin: 0 auto;
+    padding: 0 1.2rem;
+}
+
+/* Leve reforço nos cards para darem destaque sobre a imagem */
+.featured-recipes-section .recipe-card-link {
+    backdrop-filter: blur(4px); /* Suaviza sutilmente o fundo sob o card */
+}
+
+/* Link 'Ver catálogo completo' integrado ao tema */
+.see-all-link {
+    color: var(--text-accent);
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: opacity 0.2s ease;
+}
+
+.see-all-link:hover {
+    text-decoration: underline;
+    opacity: 0.85;
+}
+
+/* Responsividade mobile: desativa o background fixo para evitar travamento */
+@media (max-width: 768px) {
+    .featured-recipes-section {
+        padding: 2.5rem 0;
+        background-attachment: scroll;
     }
 }
