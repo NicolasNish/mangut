@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -23,11 +23,11 @@
             {% if current_user.is_authenticated %}
                 <a href="/pastas">Minhas Pastas</a>
             {% endif %}
-            <a href="/sobre">Quem somos</a>
+            <a href="/sobre">Sobre</a>
         </nav>
         <div class="nav-actions">
             {% if current_user.is_authenticated %}
-                <a href="/perfil" class="navbar-user-link" title="Ver meu perfil">
+                <a href="/perfil" class="navbar-user-link" title="Meu perfil">
                     {% if current_user.foto_perfil %}
                         <img src="{{ current_user.foto_perfil }}" alt="{{ current_user.nome }}" class="navbar-avatar-thumb">
                     {% else %}
@@ -44,26 +44,24 @@
         </div>
     </header>
 
-    <!-- Banner Principal (Sem botão redundante) -->
-    <section class="hero">
+    <section class="hero-fullscreen">
         <h1>Mangut: Livro de receitas da Amazônia.</h1>
-        <p>Descubra os segredos da Culinária Amazônica</p>
+        <p>Descubra os segredos da Culinária Amazônica.</p>
         <div>
             <a href="/receitas" class="btn-cta">Explorar Receitas</a>
         </div>
     </section>
 
-    <!-- Pratos em Destaque com Grid Consistente -->
     <section class="featured-recipes-section">
-        <main class="container">
-            <div class="section-header">
+        <main class="container" id="destaques">
+            <div class="section-header reveal-on-scroll">
                 <h2>Pratos em Destaque</h2>
                 <a href="/receitas" class="see-all-link">Ver catálogo completo →</a>
             </div>
 
             <div class="recipe-grid">
                 {% for receita in receitas %}
-                <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="recipe-card-link">
+                <a href="{{ url_for('main.detalhe_receita', id=receita.id) }}" class="recipe-card-link reveal-on-scroll">
                     {% if receita.imagem_url %}
                         <img src="{{ receita.imagem_url }}" alt="{{ receita.nome }}" class="card-img">
                     {% endif %}
@@ -81,7 +79,7 @@
                                 </div>
                             </div>
                             <h3>{{ receita.nome }}</h3>
-                            <p>{{ receita.descricao }}</p>
+                            <p>{{ receita.descricao | truncate(110, True, '...') }}</p>
                         </div>
                         <span class="card-footer-action">Ver preparo completo →</span>
                     </div>
@@ -96,6 +94,30 @@
     </footer>
 
     <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
+
+    <!-- Script de Animação de Scroll (IntersectionObserver) -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const elementsToReveal = document.querySelectorAll('.reveal-on-scroll');
+
+            const observerOptions = {
+                root: null,
+                threshold: 0.15,
+                rootMargin: "0px 0px -40px 0px"
+            };
+
+            const observer = new IntersectionObserver((entries, observerInstance) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        observerInstance.unobserve(entry.target);
+                    }
+                });
+            }, observerOptions);
+
+            elementsToReveal.forEach(el => observer.observe(el));
+        });
+    </script>
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

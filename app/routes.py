@@ -6,15 +6,24 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 from app import db
 from app.models import Receita, AvaliacaoReceita, Categoria, Gastronomo, PastaReceitas
+import base64
+from io import BytesIO
+from PIL import Image
 
 main = Blueprint('main', __name__)
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
 
-import base64
-from io import BytesIO
-from PIL import Image
-
+def salvar_imagem(file):
+    """Valida e salva arquivos normais enviados via upload tradicional."""
+    if file and file.filename != '':
+        extensao = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        if extensao in ALLOWED_EXTENSIONS:
+            nome_arquivo = f"{uuid.uuid4().hex}_{secure_filename(file.filename)}"
+            caminho_completo = os.path.join(current_app.config['UPLOAD_FOLDER'], nome_arquivo)
+            file.save(caminho_completo)
+            return f"/static/uploads/{nome_arquivo}"
+    return None
 
 def salvar_imagem_cortada(dados_base64, prefixo="receita"):
     """Decodifica a imagem cortada pelo navegador e salva como arquivo JPG/PNG no disco."""
@@ -384,6 +393,7 @@ def excluir_avaliacao(id):
 def formulario_editar_receita(id):
     receita = Receita.query.get_or_404(id)
 
+    # Verificação de permissão: apenas o autor ou administrador pode editar
     if receita.gastronomos_idgastronomos != current_user.idgastronomos and not current_user.is_admin:
         return redirect(url_for('main.detalhe_receita', id=id))
 
@@ -394,9 +404,16 @@ def formulario_editar_receita(id):
         receita.lista_ingredientes = request.form.get('lista_ingredientes').strip()
         receita.modo_preparo = request.form.get('modo_preparo').strip()
 
-        file_imagem = request.files.get('imagem_arquivo')
-        nova_imagem = salvar_imagem(file_imagem)
+        # 1. Tenta pegar a imagem recortada (Base64)
+        imagem_base64 = request.form.get('imagem_cortada')
+        nova_imagem = salvar_imagem_cortada(imagem_base64, prefixo="receita")
 
+        # 2. Se não cortou, verifica se enviou arquivo comum
+        if not nova_imagem:
+            file_imagem = request.files.get('imagem_arquivo')
+            nova_imagem = salvar_imagem(file_imagem)
+
+        # Se houver nova imagem (cortada ou comum), atualiza
         if nova_imagem:
             receita.imagem_url = nova_imagem
 
@@ -414,7 +431,6 @@ def formulario_editar_receita(id):
         "categoria_id": receita.categoria_idcategoria
     }
     return render_template('editar_receita.html', receita=dados_receita, categorias=categorias)
-
 
 # 🗑️ Excluir Receita
 @main.route('/receita/<int:id>/excluir', methods=['POST'])

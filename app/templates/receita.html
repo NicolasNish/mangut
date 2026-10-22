@@ -19,6 +19,9 @@
         <nav class="nav-links">
             <a href="/receitas">Receitas</a>
             <a href="/categorias">Categorias</a>
+            {% if current_user.is_authenticated %}
+                <a href="/pastas">Minhas Pastas</a>
+            {% endif %}
             <a href="/sobre">Quem somos</a>
         </nav>
         <div class="nav-actions">
