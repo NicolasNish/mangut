@@ -31,7 +31,6 @@
                     {% endif %}
                     <span>{{ current_user.nome }}</span>
                 </a>
-                <a href="/receita/nova" class="btn-primary">+ Nova Receita</a>
                 <a href="/logout" class="btn-logout">🚪 Sair</a>
             {% endif %}
         </div>
@@ -40,7 +39,7 @@
     <main class="container">
         <div class="section-header">
             <div>
-                <h2>Meus Livros & Pastas de Receitas</h2>
+                <h2>📁 Meus Livros & Pastas de Receitas</h2>
                 <p style="color: var(--text-secondary); margin-top: 0.3rem;">Organize suas receitas salvas e favoritas em listas temáticas personalizadas.</p>
             </div>
             <button onclick="document.getElementById('modal-nova-pasta').style.display='flex'" class="btn-primary">
@@ -53,6 +52,7 @@
                 {% for pasta in pastas %}
                 <div class="folder-card">
                     <div>
+                        <div class="folder-icon">📂</div>
                         <h3 class="folder-title">{{ pasta.nome }}</h3>
                         <p class="folder-desc">{{ pasta.descricao or 'Coleção de receitas personalizadas.' }}</p>
                     </div>

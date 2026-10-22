@@ -18,9 +18,6 @@
         <nav class="nav-links">
             <a href="/receitas">Receitas</a>
             <a href="/categorias">Categorias</a>
-            {% if current_user.is_authenticated %}
-                <a href="/pastas">Minhas Pastas</a>
-            {% endif %}
             <a href="/sobre" class="active">Quem somos</a>
         </nav>
         <div class="nav-actions">
@@ -44,9 +41,9 @@
 
     <main class="container">
         <section class="about-hero">
-            <h1 style="color: var(--text-accent); margin-bottom: 1rem; font-size: 2.4rem;">Mangut: Amazônia + Tecnologia</h1>
+            <h1 style="color: var(--text-accent); margin-bottom: 1rem; font-size: 2.4rem;">Mangut: Tradição & Tecnologia</h1>
             <p style="color: var(--text-secondary); max-width: 720px; margin: 0 auto; line-height: 1.7; font-size: 1.05rem;">
-                O <strong>Mangut</strong> é uma website projetado para servir como memória cultural da gastronomia amazônica.
+                O <strong>Mangut</strong> é uma plataforma colaborativa projetada para conectar entusiastas da culinária amazônica, preservando técnicas ancestrais e estimulando o registro de receitas tradicionais da região Norte.
             </p>
         </section>
 

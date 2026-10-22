@@ -18,9 +18,6 @@
         <nav class="nav-links">
             <a href="/receitas">Receitas</a>
             <a href="/categorias" class="active">Categorias</a>
-            {% if current_user.is_authenticated %}
-                <a href="/pastas">Minhas Pastas</a>
-            {% endif %}
             <a href="/sobre">Quem somos</a>
         </nav>
         <div class="nav-actions">
@@ -62,7 +59,7 @@
                     {% endif %}
                     <div class="card-content">
                         <h3>{{ receita.nome }}</h3>
-                        <p>{{ receita.descricao | truncate(110, True, '...') }}</p>
+                        <p>{{ receita.descricao }}</p>
                         <span class="card-footer-action">Ver preparo →</span>
                     </div>
                 </a>
