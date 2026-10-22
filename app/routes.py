@@ -163,6 +163,10 @@ def login():
         usuario = Gastronomo.query.filter_by(email=email).first()
 
         if usuario and check_password_hash(usuario.senha, senha):
+            if not getattr(usuario, 'ativo', True):
+                flash('Sua conta foi temporariamente desativada pela moderação.', 'danger')
+                return redirect(url_for('main.login'))
+
             login_user(usuario)
             if next_page:
                 return redirect(next_page)
@@ -540,3 +544,77 @@ def alternar_salvar_pasta(receita_id):
 
     db.session.commit()
     return redirect(request.referrer or url_for('main.detalhe_receita', id=receita_id))
+
+# 👥 Listagem e Gestão Geral de Usuários (Apenas Administrador)
+@main.route('/admin/usuarios')
+@login_required
+def admin_usuarios():
+    if not current_user.is_admin:
+        flash('Acesso restrito ao perfil administrador.', 'danger')
+        return redirect(url_for('main.index'))
+
+    usuarios = Gastronomo.query.order_by(Gastronomo.idgastronomos.asc()).all()
+    return render_template('admin/usuarios.html', usuarios=usuarios)
+
+
+# 🛡️ Alternar Permissão (Tornar Admin / Tornar Gastrônomo)
+@main.route('/admin/usuarios/<int:id>/permissao', methods=['POST'])
+@login_required
+def admin_alterar_permissao(id):
+    if not current_user.is_admin:
+        return redirect(url_for('main.index'))
+
+    usuario = Gastronomo.query.get_or_404(id)
+
+    if usuario.idgastronomos == current_user.idgastronomos:
+        flash('Você não pode alterar sua própria permissão de administrador.', 'warning')
+        return redirect(url_for('main.admin_usuarios'))
+
+    usuario.is_admin = not usuario.is_admin
+    db.session.commit()
+
+    papel = 'Administrador' if usuario.is_admin else 'Gastrônomo'
+    flash(f'Permissão de {usuario.nome} alterada para {papel}.', 'success')
+    return redirect(url_for('main.admin_usuarios'))
+
+
+# 🚫 Alternar Ativação (Ativar / Desativar Conta)
+@main.route('/admin/usuarios/<int:id>/status', methods=['POST'])
+@login_required
+def admin_alternar_status(id):
+    if not current_user.is_admin:
+        return redirect(url_for('main.index'))
+
+    usuario = Gastronomo.query.get_or_404(id)
+
+    if usuario.idgastronomos == current_user.idgastronomos:
+        flash('Você não pode desativar sua própria conta.', 'warning')
+        return redirect(url_for('main.admin_usuarios'))
+
+    usuario.ativo = not getattr(usuario, 'ativo', True)
+    db.session.commit()
+
+    status_str = 'reativada' if usuario.ativo else 'desativada'
+    flash(f'A conta de {usuario.nome} foi {status_str} com sucesso.', 'info')
+    return redirect(url_for('main.admin_usuarios'))
+
+
+# 🗑️ Excluir Conta pelo Administrador
+@main.route('/admin/usuarios/<int:id>/excluir', methods=['POST'])
+@login_required
+def admin_excluir_usuario(id):
+    if not current_user.is_admin:
+        return redirect(url_for('main.index'))
+
+    usuario = Gastronomo.query.get_or_404(id)
+
+    if usuario.idgastronomos == current_user.idgastronomos:
+        flash('Você não pode excluir a sua própria conta logada.', 'danger')
+        return redirect(url_for('main.admin_usuarios'))
+
+    nome_removido = usuario.nome
+    db.session.delete(usuario)
+    db.session.commit()
+
+    flash(f'Usuário "{nome_removido}" e todos os seus dados foram removidos definitivamente.', 'success')
+    return redirect(url_for('main.admin_usuarios'))

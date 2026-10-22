@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciamento de Usuários - Mangut ADM</title>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='img/logo.png') }}" type="image/png">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="navbar">
+        <a href="/" class="logo-link">
+            <img src="{{ url_for('static', filename='img/logo.png') }}" alt="Logo Mangut" class="navbar-logo">
+        </a>
+        <nav class="nav-links">
+            <a href="/receitas">Receitas</a>
+            <a href="/admin/usuarios" class="active">👥 Usuários</a>
+            <a href="/perfil">Meu Perfil</a>
+        </nav>
+        <div class="nav-actions">
+            <a href="/logout" class="btn-logout">🚪 Sair</a>
+        </div>
+    </header>
+
+    <main class="container">
+        <!-- Exibição de Alertas Flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div style="margin-bottom: 1.5rem;">
+                    {% for category, message in messages %}
+                        <div style="padding: 0.8rem 1.2rem; border-radius: 8px; font-size: 0.9rem; margin-bottom: 0.5rem; background: {% if category == 'success' %}#d1fae5; color: #065f46; border: 1px solid #10b981;{% elif category == 'danger' %}#fee2e2; color: #991b1b; border: 1px solid #ef4444;{% elif category == 'warning' %}#fef3c7; color: #92400e; border: 1px solid #f59e0b;{% else %}#e0e7ff; color: #3730a3; border: 1px solid #6366f1;{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <div class="section-header">
+            <div>
+                <h2>👥 Administração de Gastrônomos & Acessos</h2>
+                <p style="color: var(--text-secondary); margin-top: 0.3rem;">Total de {{ usuarios|length }} contas cadastradas na plataforma.</p>
+            </div>
+            <a href="/" class="btn-primary" style="font-size: 0.85rem;">← Voltar ao Início</a>
+        </div>
+
+        <div class="admin-table-container">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>Usuário</th>
+                        <th>E-mail</th>
+                        <th>Telefone</th>
+                        <th>Papel</th>
+                        <th>Status</th>
+                        <th>Receitas</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in usuarios %}
+                    <tr>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 0.65rem;">
+                                {% if u.foto_perfil %}
+                                    <img src="{{ u.foto_perfil }}" alt="{{ u.nome }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                                {% else %}
+                                    <div class="navbar-avatar-placeholder" style="width: 32px; height: 32px; font-size: 0.85rem;">
+                                        {{ u.nome[0] | upper }}
+                                    </div>
+                                {% endif %}
+                                <div>
+                                    <strong>{{ u.nome }}</strong>
+                                    {% if u.idgastronomos == current_user.idgastronomos %}
+                                        <span style="font-size: 0.75rem; color: var(--text-accent); display: block;">(Você)</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </td>
+                        <td>{{ u.email }}</td>
+                        <td>{{ u.telefone or '-' }}</td>
+                        <td>
+                            {% if u.is_admin %}
+                                <span class="card-tag" style="background: #e63946; color: white; padding: 0.2rem 0.5rem; font-size: 0.75rem;">Administrador</span>
+                            {% else %}
+                                <span class="card-tag" style="padding: 0.2rem 0.5rem; font-size: 0.75rem;">Gastrônomo</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if u.ativo %}
+                                <span class="badge-status badge-active">Ativo</span>
+                            {% else %}
+                                <span class="badge-status badge-inactive">Desativado</span>
+                            {% endif %}
+                        </td>
+                        <td style="text-align: center;">
+                            <strong>{{ u.receitas|length }}</strong>
+                        </td>
+                        <td>
+                            {% if u.idgastronomos != current_user.idgastronomos %}
+                                <div class="table-actions">
+                                    <!-- Alternar Permissão Admin -->
+                                    <form action="{{ url_for('main.admin_alterar_permissao', id=u.idgastronomos) }}" method="POST" onsubmit="return confirm('Alterar a permissão deste usuário?');">
+                                        <button type="submit" class="btn-table-action" title="Mudar nível de acesso">
+                                            {% if u.is_admin %}⬇️ Rebaixar{% else %}⬆️ Tornar ADM{% endif %}
+                                        </button>
+                                    </form>
+
+                                    <!-- Ativar / Desativar -->
+                                    <form action="{{ url_for('main.admin_alternar_status', id=u.idgastronomos) }}" method="POST">
+                                        <button type="submit" class="btn-table-action" style="color: {% if u.ativo %}#f59e0b{% else %}#10b981{% endif %};" title="Bloquear ou liberar acesso">
+                                            {% if u.ativo %}⏸️ Desativar{% else %}▶️ Reativar{% endif %}
+                                        </button>
+                                    </form>
+
+                                    <!-- Exclusão Definitiva -->
+                                    <form action="{{ url_for('main.admin_excluir_usuario', id=u.idgastronomos) }}" method="POST" onsubmit="return confirm('ATENÇÃO: Deseja apagar permanentemente este usuário e todas as suas receitas?');">
+                                        <button type="submit" class="btn-table-action" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" title="Excluir do sistema">
+                                            🗑️
+                                        </button>
+                                    </form>
+                                </div>
+                            {% else %}
+                                <span style="font-size: 0.8rem; color: var(--text-secondary); font-style: italic;">Sua conta</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2026 Mangut. Culinária e tradição do Norte.</p>
+    </footer>
+
+    <button id="theme-toggle" class="theme-toggle-floating" title="Alternar Modo Escuro">🌙</button>
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

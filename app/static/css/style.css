@@ -1392,3 +1392,230 @@ img, video, canvas {
         background-attachment: scroll;
     }
 }
+
+.admin-table-container {
+    background: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 1.5rem;
+    overflow-x: auto;
+    box-shadow: 0 4px 12px var(--card-shadow);
+    margin-top: 1.5rem;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 0.92rem;
+}
+
+.admin-table th {
+    background: var(--bg-surface);
+    color: var(--text-accent);
+    padding: 0.85rem 1rem;
+    font-weight: 700;
+    border-bottom: 2px solid var(--border-color);
+    white-space: nowrap;
+}
+
+.admin-table td {
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+.admin-table tr:hover {
+    background-color: var(--bg-surface);
+}
+
+.badge-status {
+    padding: 0.25rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    display: inline-block;
+}
+
+.badge-active {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.badge-inactive {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.table-actions {
+    display: flex;
+    gap: 0.4rem;
+    align-items: center;
+}
+
+.btn-table-action {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    padding: 0.35rem 0.65rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-table-action:hover {
+    border-color: var(--text-accent);
+    color: var(--text-accent);
+}
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem 2.5rem;
+    background: var(--bg-card);
+    border-bottom: 1px solid var(--border-color);
+    box-shadow: 0 2px 8px var(--card-shadow);
+    gap: 1.5rem;
+}
+
+.logo-link {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.navbar-logo {
+    height: 42px;
+    width: auto;
+    object-fit: contain;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: color 0.2s ease;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--text-accent);
+}
+
+.nav-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    flex-shrink: 0;
+}
+
+.navbar-user-name {
+    max-width: 180px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* ========================================================
+   ✨ PRIMEIRA DOBRA EM TELA CHEIA (HERO)
+   ======================================================== */
+.hero-fullscreen {
+    height: calc(100vh - 72px);
+    min-height: 550px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 2rem 1.5rem;
+    position: relative;
+    box-sizing: border-box;
+}
+
+.hero-fullscreen h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    color: var(--text-accent);
+    margin-bottom: 1rem;
+    line-height: 1.2;
+    max-width: 800px;
+}
+
+.hero-fullscreen p {
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+    max-width: 650px;
+    margin-bottom: 2.2rem;
+    line-height: 1.5;
+}
+
+/* Indicador pulsante convidando a descer a página */
+.scroll-indicator {
+    position: absolute;
+    bottom: 2.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    animation: bounce 2s infinite;
+    cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.scroll-indicator:hover {
+    color: var(--text-accent);
+}
+
+.scroll-indicator .arrow-down {
+    font-size: 1.3rem;
+}
+
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateY(0);
+    }
+    40% {
+        transform: translateY(-8px);
+    }
+    60% {
+        transform: translateY(-4px);
+    }
+}
+
+/* ========================================================
+   🎬 ANIMAÇÕES DE REVELAÇÃO SUAVE (SCROLL REVEAL)
+   ======================================================== */
+.reveal-on-scroll {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+}
+
+.reveal-on-scroll.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* Efeito cascata para os cards */
+.recipe-grid .recipe-card-link.reveal-on-scroll:nth-child(1) { transition-delay: 0.05s; }
+.recipe-grid .recipe-card-link.reveal-on-scroll:nth-child(2) { transition-delay: 0.15s; }
+.recipe-grid .recipe-card-link.reveal-on-scroll:nth-child(3) { transition-delay: 0.25s; }
+.recipe-grid .recipe-card-link.reveal-on-scroll:nth-child(4) { transition-delay: 0.35s; }
+.recipe-grid .recipe-card-link.reveal-on-scroll:nth-child(5) { transition-delay: 0.45s; }
+.recipe-grid .recipe-card-link.reveal-on-scroll:nth-child(6) { transition-delay: 0.55s; }

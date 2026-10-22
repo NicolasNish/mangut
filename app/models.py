@@ -21,16 +21,15 @@ class Gastronomo(UserMixin, db.Model):
     telefone = db.Column(db.String(20), nullable=True)
     foto_perfil = db.Column(db.String(255), nullable=True)
     is_admin = db.Column(db.Boolean, default=False)
+    ativo = db.Column(db.Boolean, default=True)
+    data_criacao = db.Column(db.DateTime, default=datetime.utcnow)
 
-    receitas = db.relationship('Receita', back_populates='autor', lazy=True)
+    receitas = db.relationship('Receita', back_populates='autor', lazy=True, cascade='all, delete-orphan')
     avaliacoes = db.relationship('AvaliacaoReceita', back_populates='usuario', lazy=True, cascade='all, delete-orphan')
-
-    # 📚 Pastas de receitas do usuário
     pastas = db.relationship('PastaReceitas', back_populates='usuario', lazy=True, cascade='all, delete-orphan')
 
     def get_id(self):
         return str(self.idgastronomos)
-
 
 class Categoria(db.Model):
     __tablename__ = 'categoria'
